@@ -115,19 +115,45 @@ export default async function JobDetailPage({
     job.isSalaryDisclosed
   );
 
-  // Check if current user saved this job
+  // Check if current user saved this job or has applied, and fetch resumes
   let isSaved = false;
+  let hasApplied = false;
+  let userResumes: Array<{
+    id: string;
+    title: string;
+    fileUrl: string | null;
+    isDefault: boolean;
+  }> = [];
+
   const user = await getCurrentUser();
   if (user) {
-    const savedRecord = await prisma.savedJob.findUnique({
-      where: {
-        userId_jobId: {
-          userId: user.id,
-          jobId: job.id,
+    const [savedRecord, applicationRecord, dbResumes] = await Promise.all([
+      prisma.savedJob.findUnique({
+        where: {
+          userId_jobId: {
+            userId: user.id,
+            jobId: job.id,
+          },
         },
-      },
-    });
+      }),
+      prisma.application.findUnique({
+        where: {
+          jobId_userId: {
+            jobId: job.id,
+            userId: user.id,
+          },
+        },
+      }),
+      prisma.resume.findMany({
+        where: { userId: user.id },
+        select: { id: true, title: true, fileUrl: true, isDefault: true },
+        orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
+      }),
+    ]);
+
     isSaved = Boolean(savedRecord);
+    hasApplied = Boolean(applicationRecord);
+    userResumes = dbResumes;
   }
 
   // Google Jobs structured data
@@ -201,12 +227,16 @@ export default async function JobDetailPage({
               skills={job.skills}
             />
             <JobApplyCard
+              jobId={job.id}
               jobSlug={job.slug}
               jobTitle={job.title}
               companyName={companyName}
               applicationMethod={job.applicationMethod}
               applicationEmail={job.applicationEmail}
               externalUrl={job.externalUrl}
+              userResumes={userResumes}
+              isLoggedIn={Boolean(user)}
+              hasApplied={hasApplied}
             />
           </main>
 

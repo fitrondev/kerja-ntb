@@ -90,22 +90,24 @@ Fase 10: SEO Google Jobs (JSON-LD), Audit Log & Production Optimization
 
 ---
 
-### Fase 6: Dashboard Pencari Kerja & Resume Builder
+### Fase 6: Dashboard Pencari Kerja & Resume Builder [SELESAI - ✅]
 
+- **Status:** Selesai (Rute terpadu `/dashboard/user`)
 - **Tugas Utama:**
-  1. Dashboard `/dashboard` (ringkasan lamaran yang dikirim, lowongan tersimpan).
-  2. Fitur profil pelamar (foto, bio, kontak).
-  3. Resume Builder: Pengguna dapat menginput pendidikan, pengalaman, keahlian, atau mengunggah file CV.
-  4. Alur pelamaran modal: Pilih CV, tulis cover letter, dan submit lamaran.
+  1. [x] **Dashboard `/dashboard/user`**: Ringkasan metrik (lamaran terkirim, proses seleksi aktif, loker tersimpan, resume tersimpan), daftar lamaran terkini, dan pintasan lowongan tersimpan.
+  2. [x] **Fitur Profil Pelamar (`/dashboard/user/profile`)**: Foto profil via SumoPod Object Storage S3, nama lengkap, kontak WhatsApp, domisili 10 Kab/Kota NTB, alamat lengkap, bio, tanggal lahir, gender, dan portofolio (Website, LinkedIn, GitHub). Didukung Server Action `updateUserProfileAction`.
+  3. [x] **Resume Builder (`/dashboard/user/resume`)**: Penyusunan CV terstruktur dengan riwayat pendidikan, pengalaman kerja, ringkasan profesional, upload berkas CV PDF langsung ke SumoPod S3, serta pengelolaan multi-CV dan penetapan CV default. Didukung Server Actions `saveResumeAction`, `deleteResumeAction`, `setDefaultResumeAction`.
+  4. [x] **Pelacak Lamaran & Loker Tersimpan (`/dashboard/user/applications` & `/dashboard/user/saved`)**: Tracking status lamaran dengan badge status visual (`APPLIED`, `REVIEWING`, `SHORTLISTED`, `INTERVIEW`, `ACCEPTED`, `REJECTED`, `WITHDRAWN`), aksi pembatalan lamaran (`withdrawJobApplicationAction`), dan manajemen daftar favorit loker.
+  5. [x] **Alur Pelamaran Modal (`JobApplyModal`)**: Dialog pelamaran terintegrasi di `/loker/[slug]`, memungkinkan pemilihan CV dari Resume Builder atau upload file PDF baru, penulisan cover letter, dan pengiriman lamaran ke MySQL via `submitJobApplicationAction`.
 - **Contoh Prompt Vibe Coding:**
-  > _"Buat modul Resume Builder di `/dashboard/resume` yang memungkinkan pelamar menyusun informasi riwayat pendidikan, pengalaman kerja, dan keterampilan, serta menyimpan perubahan ke database MySQL via Server Action."_
+  > _"Buat modul Resume Builder di `/dashboard/user/resume` yang memungkinkan pelamar menyusun informasi riwayat pendidikan, pengalaman kerja, dan keterampilan, serta menyimpan perubahan ke database MySQL via Server Action."_
 
 ---
 
 ### Fase 7: Dashboard Perusahaan & Multi-Step Job Posting
 
 - **Tugas Utama:**
-  1. Dashboard `/employer` (statistik pelamar baru, lowongan aktif).
+  1. Dashboard `dashboard/employer` (statistik pelamar baru, lowongan aktif).
   2. Multi-step form pembuatan lowongan:
      - Step 1: Informasi Dasar
      - Step 2: Kompensasi Gaji
@@ -116,7 +118,7 @@ Fase 10: SEO Google Jobs (JSON-LD), Audit Log & Production Optimization
   3. Logika Moderasi: Jika perusahaan berstatus `isVerified = true`, lowongan langsung `PUBLISHED`. Jika belum, masuk ke `PENDING_REVIEW`.
   4. Form pengajuan verifikasi NIB dan upload dokumen legalitas.
 - **Contoh Prompt Vibe Coding:**
-  > _"Bangun Multi-step wizard untuk pasang lowongan di `/employer/jobs/create`. Gunakan Zod untuk memvalidasi tiap langkah. Terapkan logika status otomatis: PUBLISHED untuk perusahaan terverifikasi dan PENDING_REVIEW untuk perusahaan baru."_
+  > _"Bangun Multi-step wizard untuk pasang lowongan di `dashboard/employer/jobs/create`. Gunakan Zod untuk memvalidasi tiap langkah. Terapkan logika status otomatis: PUBLISHED untuk perusahaan terverifikasi dan PENDING_REVIEW untuk perusahaan baru."_
 
 ---
 
@@ -134,13 +136,13 @@ Fase 10: SEO Google Jobs (JSON-LD), Audit Log & Production Optimization
 ### Fase 9: Dashboard Superadmin & Moderasi
 
 - **Tugas Utama:**
-  1. Halaman `/admin` dengan metrik jumlah lowongan pending, verifikasi pending, dan laporan baru.
+  1. Halaman `/dashboard` dengan metrik jumlah lowongan pending, verifikasi pending, dan laporan baru.
   2. Daftar review lowongan: Tombol Approve dan Reject (modal input alasan penolakan wajib).
   3. Review verifikasi perusahaan: Verifikasi NIB dan preview dokumen legalitas privat via signed URL.
   4. Manajemen laporan (Reports): Tindakan pause/remove job atau suspend user.
   5. Pencatatan Audit Log pada setiap aksi admin.
 - **Contoh Prompt Vibe Coding:**
-  > _"Bangun halaman antrean moderasi lowongan di `/admin/jobs/pending`. Buat tombol Approve dan Reject dengan konfirmasi dialog. Simpan setiap aksi admin ke dalam tabel `AuditLog` di MySQL."_
+  > _"Bangun halaman antrean moderasi lowongan di `dashboard/jobs/pending`. Buat tombol Approve dan Reject dengan konfirmasi dialog. Simpan setiap aksi admin ke dalam tabel `AuditLog` di MySQL."_
 
 ---
 

@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import {
   type User as ClerkBackendUser,
   type UserJSON,
@@ -31,6 +33,139 @@ export function extractRoleFromMetadata(
     return UserRole.COMPANY;
   }
   return UserRole.INDIVIDUAL;
+}
+
+interface UpsertUserInput {
+  clerkId: string;
+  email: string;
+  fullName: string;
+  avatarUrl: string | null;
+  phone: string | null;
+  role: UserRole;
+}
+
+/**
+ * Helper sinkronisasi yang aman dari race-condition paralel RSC dan
+ * konflik unique constraint (User_clerkId_key & User_email_key).
+ */
+async function upsertUserSafely(input: UpsertUserInput) {
+  const { clerkId, email, fullName, avatarUrl, phone, role } = input;
+
+  // 1. Cek apakah pengguna sudah terdaftar berdasarkan clerkId
+  const existingByClerk = await prisma.user.findUnique({
+    where: { clerkId },
+    include: {
+      profile: true,
+      company: true,
+    },
+  });
+
+  if (existingByClerk) {
+    return await prisma.user.update({
+      where: { clerkId },
+      data: {
+        email,
+        role: role ?? existingByClerk.role,
+        status: UserStatus.ACTIVE,
+        profile: {
+          upsert: {
+            create: {
+              fullName,
+              avatarUrl,
+              phone,
+            },
+            update: {
+              fullName,
+              avatarUrl,
+              ...(phone ? { phone } : {}),
+            },
+          },
+        },
+      },
+      include: {
+        profile: true,
+        company: true,
+      },
+    });
+  }
+
+  // 2. Cek apakah pengguna sudah ada berdasarkan email (misal dari seed data atau akun sebelumnya)
+  const existingByEmail = await prisma.user.findUnique({
+    where: { email },
+    include: {
+      profile: true,
+      company: true,
+    },
+  });
+
+  if (existingByEmail) {
+    return await prisma.user.update({
+      where: { email },
+      data: {
+        clerkId, // Hubungkan akun yang ada dengan clerkId yang baru login
+        role: role ?? existingByEmail.role,
+        status: UserStatus.ACTIVE,
+        profile: {
+          upsert: {
+            create: {
+              fullName,
+              avatarUrl,
+              phone,
+            },
+            update: {
+              fullName,
+              avatarUrl,
+              ...(phone ? { phone } : {}),
+            },
+          },
+        },
+      },
+      include: {
+        profile: true,
+        company: true,
+      },
+    });
+  }
+
+  // 3. Jika belum ada sama sekali, buat entitas user baru (dengan proteksi race-condition)
+  try {
+    return await prisma.user.create({
+      data: {
+        clerkId,
+        email,
+        role: role ?? UserRole.INDIVIDUAL,
+        status: UserStatus.ACTIVE,
+        profile: {
+          create: {
+            fullName,
+            avatarUrl,
+            phone,
+          },
+        },
+      },
+      include: {
+        profile: true,
+        company: true,
+      },
+    });
+  } catch (_error: unknown) {
+    // Jika eksekusi paralel bersamaan (P2002), ambil data yang baru saja dibuat
+    const fallbackUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ clerkId }, { email }],
+      },
+      include: {
+        profile: true,
+        company: true,
+      },
+    });
+
+    if (fallbackUser) {
+      return fallbackUser;
+    }
+
+    throw _error;
+  }
 }
 
 /**
@@ -70,47 +205,14 @@ export async function syncClerkUserToDatabase(data: UserJSON) {
       data.unsafe_metadata as Record<string, unknown> | undefined
     );
 
-  const user = await prisma.user.upsert({
-    where: { clerkId },
-    update: {
-      email,
-      role,
-      status: UserStatus.ACTIVE,
-      profile: {
-        upsert: {
-          create: {
-            fullName,
-            avatarUrl,
-            phone,
-          },
-          update: {
-            fullName,
-            avatarUrl,
-            ...(phone ? { phone } : {}),
-          },
-        },
-      },
-    },
-    create: {
-      clerkId,
-      email,
-      role,
-      status: UserStatus.ACTIVE,
-      profile: {
-        create: {
-          fullName,
-          avatarUrl,
-          phone,
-        },
-      },
-    },
-    include: {
-      profile: true,
-      company: true,
-    },
+  return await upsertUserSafely({
+    clerkId,
+    email,
+    fullName,
+    avatarUrl,
+    phone,
+    role,
   });
-
-  return user;
 }
 
 /**
@@ -147,44 +249,13 @@ export async function syncClerkBackendUserToDatabase(user: ClerkBackendUser) {
       user.unsafeMetadata as Record<string, unknown> | undefined
     );
 
-  return await prisma.user.upsert({
-    where: { clerkId },
-    update: {
-      email,
-      role,
-      status: UserStatus.ACTIVE,
-      profile: {
-        upsert: {
-          create: {
-            fullName,
-            avatarUrl,
-            phone,
-          },
-          update: {
-            fullName,
-            avatarUrl,
-            ...(phone ? { phone } : {}),
-          },
-        },
-      },
-    },
-    create: {
-      clerkId,
-      email,
-      role,
-      status: UserStatus.ACTIVE,
-      profile: {
-        create: {
-          fullName,
-          avatarUrl,
-          phone,
-        },
-      },
-    },
-    include: {
-      profile: true,
-      company: true,
-    },
+  return await upsertUserSafely({
+    clerkId,
+    email,
+    fullName,
+    avatarUrl,
+    phone,
+    role,
   });
 }
 
@@ -202,10 +273,10 @@ export async function deactivateClerkUserInDatabase(clerkId: string) {
 
 /**
  * Helper untuk mengambil record user aktif dari database MySQL.
- * Jika user sudah login di Clerk namun belum terdaftar di MySQL (misal lag webhook),
- * fungsi ini secara otomatis melakukan auto-sync on-demand.
+ * Dibungkus dengan React cache() agar eksekusi paralel pada Server Components
+ * (layout.tsx dan page.tsx) di-memoize per-request dan tidak memicu race-condition.
  */
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const { userId } = await auth();
 
   if (!userId) {
@@ -230,4 +301,4 @@ export async function getCurrentUser() {
   }
 
   return await syncClerkBackendUserToDatabase(clerkUser);
-}
+});

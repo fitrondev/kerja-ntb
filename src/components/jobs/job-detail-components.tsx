@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import { SectionHeader } from "@/components/common/section-header";
+import { JobApplyModal } from "@/components/jobs/job-apply-modal";
 // ---------------------------------------------------------------------------
 // SimilarJobsSection
 // ---------------------------------------------------------------------------
@@ -430,12 +431,21 @@ export function JobDescription({
 // ---------------------------------------------------------------------------
 
 export interface JobApplyCardProps {
+  jobId: string;
   jobSlug: string;
   jobTitle: string;
   companyName: string;
   applicationMethod: string;
   applicationEmail?: string | null;
   externalUrl?: string | null;
+  userResumes?: Array<{
+    id: string;
+    title: string;
+    fileUrl?: string | null;
+    isDefault: boolean;
+  }>;
+  isLoggedIn?: boolean;
+  hasApplied?: boolean;
 }
 
 /**
@@ -443,12 +453,16 @@ export interface JobApplyCardProps {
  * Juga berisi tombol berbagi ke WhatsApp.
  */
 export function JobApplyCard({
+  jobId,
   jobSlug,
   jobTitle,
   companyName,
   applicationMethod,
   applicationEmail,
   externalUrl,
+  userResumes = [],
+  isLoggedIn = false,
+  hasApplied = false,
 }: JobApplyCardProps) {
   return (
     <div id="lamar-section" className="scroll-mt-24 pt-4">
@@ -493,16 +507,14 @@ export function JobApplyCard({
                 </a>
               </Button>
             ) : (
-              <Button
-                asChild
-                size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 font-semibold shadow-sm"
-              >
-                <Link href={`/loker/${jobSlug}/apply`}>
-                  <Send className="size-4" />
-                  <span>Lamar Sekarang (KerjaNTB)</span>
-                </Link>
-              </Button>
+              <JobApplyModal
+                jobId={jobId}
+                jobTitle={jobTitle}
+                companyName={companyName}
+                userResumes={userResumes}
+                isLoggedIn={isLoggedIn}
+                hasApplied={hasApplied}
+              />
             )}
 
             <Button asChild variant="outline" size="lg" className="gap-2">

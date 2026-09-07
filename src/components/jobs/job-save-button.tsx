@@ -30,25 +30,23 @@ export function JobSaveButton({
   showLabel = true,
   className,
 }: JobSaveButtonProps) {
-  const [isSaved, setIsSaved] = React.useState(initialSaved);
-  const [isPending, setIsPending] = React.useState(false);
-
-  // Baca status penyimpanan dari localStorage jika user belum login
-  React.useEffect(() => {
+  const [isSaved, setIsSaved] = React.useState(() => {
     if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (stored) {
           const ids: string[] = JSON.parse(stored);
           if (ids.includes(jobId)) {
-            setIsSaved(true);
+            return true;
           }
         }
       } catch {
         // Abaikan error parsing localStorage
       }
     }
-  }, [jobId]);
+    return initialSaved;
+  });
+  const [isPending, setIsPending] = React.useState(false);
 
   const handleToggleSave = async (e: React.MouseEvent) => {
     e.preventDefault();
