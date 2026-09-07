@@ -70,7 +70,7 @@ export function JobsPagination({
 
 function buildPageUrl(
   pageNumber: number,
-  params: Record<string, string | string[] | undefined>,
+  params: Record<string, string | string[] | undefined>
 ): string {
   const p = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {

@@ -4,9 +4,9 @@ import Link from "next/link";
 
 import { Sparkles } from "lucide-react";
 
+import { SectionContainer } from "@/components/layout/section-container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { SectionContainer } from "@/components/layout/section-container";
 
 /**
  * CTA section untuk HRD dan pemilik usaha di NTB.
@@ -32,9 +32,9 @@ export function CtaSection() {
         </h2>
 
         <p className="text-muted-foreground text-base leading-relaxed sm:text-lg">
-          Pasang lowongan kerja dalam hitungan menit. Dapatkan pelamar berkualitas
-          dari 10 Kabupaten/Kota se-NTB dengan sistem seleksi dan dashboard ATS
-          yang terpadu.
+          Pasang lowongan kerja dalam hitungan menit. Dapatkan pelamar
+          berkualitas dari 10 Kabupaten/Kota se-NTB dengan sistem seleksi dan
+          dashboard ATS yang terpadu.
         </p>
 
         <div className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row">

@@ -1,11 +1,5 @@
 import { Metadata } from "next";
 
-import {
-  EducationLevel,
-  JobType,
-  Prisma,
-  WorkplaceType,
-} from "@/generated/prisma/client";
 import { ActiveFilterPills } from "@/components/jobs/active-filter-pills";
 import { JobCard } from "@/components/jobs/job-card";
 import { JobEmptyState } from "@/components/jobs/job-empty-state";
@@ -15,6 +9,12 @@ import { JobsPagination } from "@/components/jobs/jobs-pagination";
 import { JobsResultsBar } from "@/components/jobs/jobs-results-bar";
 import { SectionContainer } from "@/components/layout/section-container";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  EducationLevel,
+  JobType,
+  Prisma,
+  WorkplaceType,
+} from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 
 export const metadata: Metadata = {
@@ -72,7 +72,9 @@ export default async function JobsPage({
     ];
   }
   if (location) {
-    where.location = { OR: [{ name: { contains: location } }, { slug: location }] };
+    where.location = {
+      OR: [{ name: { contains: location } }, { slug: location }],
+    };
   }
   if (category) where.category = { slug: category };
   if (type) where.type = type;
@@ -93,7 +95,9 @@ export default async function JobsPage({
     prisma.job.findMany({
       where,
       include: {
-        company: { select: { name: true, slug: true, logoUrl: true, isVerified: true } },
+        company: {
+          select: { name: true, slug: true, logoUrl: true, isVerified: true },
+        },
         location: { select: { name: true, slug: true } },
         category: { select: { name: true, slug: true } },
         skills: { include: { skill: { select: { name: true, slug: true } } } },
@@ -132,7 +136,10 @@ export default async function JobsPage({
     workplace ? { key: "workplace", label: `Sistem: ${workplace}` } : null,
     education ? { key: "education", label: `Pendidikan: ${education}` } : null,
     salaryMinNum
-      ? { key: "salaryMin", label: `Gaji Min: Rp ${(salaryMinNum / 1_000_000).toFixed(0)} Juta` }
+      ? {
+          key: "salaryMin",
+          label: `Gaji Min: Rp ${(salaryMinNum / 1_000_000).toFixed(0)} Juta`,
+        }
       : null,
   ].filter(Boolean) as { key: string; label: string }[];
 

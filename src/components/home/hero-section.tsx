@@ -1,12 +1,18 @@
 import * as React from "react";
 
-import { CheckCircle2, MapPin, Mountain, Search, ShieldCheck } from "lucide-react";
+import {
+  CheckCircle2,
+  MapPin,
+  Mountain,
+  Search,
+  ShieldCheck,
+} from "lucide-react";
 
+import { SectionContainer } from "@/components/layout/section-container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { VerifiedBadge } from "@/components/ui/verified-badge";
-import { SectionContainer } from "@/components/layout/section-container";
 
 interface Location {
   name: string;

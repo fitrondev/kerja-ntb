@@ -21,6 +21,14 @@ import {
   Users,
 } from "lucide-react";
 
+import { SectionHeader } from "@/components/common/section-header";
+// ---------------------------------------------------------------------------
+// SimilarJobsSection
+// ---------------------------------------------------------------------------
+
+import { JobCard, type JobCardProps } from "@/components/jobs/job-card";
+import { JobReportDialog } from "@/components/jobs/job-report-dialog";
+import { JobSaveButton } from "@/components/jobs/job-save-button";
 import { SectionContainer } from "@/components/layout/section-container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,7 +41,6 @@ import {
   JOB_TYPE_LABELS,
   WORKPLACE_LABELS,
   formatRelativeDate,
-  formatSalary,
 } from "@/lib/formatters";
 
 // ---------------------------------------------------------------------------
@@ -104,6 +111,7 @@ export interface JobDetailHeaderProps {
   job: JobDetailProps;
   companyName: string;
   initials: string;
+  initialSaved?: boolean;
 }
 
 /**
@@ -113,6 +121,7 @@ export function JobDetailHeader({
   job,
   companyName,
   initials,
+  initialSaved = false,
 }: JobDetailHeaderProps) {
   return (
     <SectionContainer
@@ -134,7 +143,10 @@ export function JobDetailHeader({
             <span>Beranda</span>
           </Link>
           <ChevronRight className="size-3" />
-          <Link href="/loker" className="hover:text-foreground transition-colors">
+          <Link
+            href="/loker"
+            className="hover:text-foreground transition-colors"
+          >
             Lowongan Kerja
           </Link>
           <ChevronRight className="size-3" />
@@ -207,8 +219,8 @@ export function JobDetailHeader({
             </div>
           </div>
 
-          {/* CTA */}
-          <div className="flex flex-wrap items-center gap-3">
+          {/* CTA: Lamar Sekarang, Simpan Lowongan, Laporkan */}
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
             <Button
               asChild
               size="lg"
@@ -219,6 +231,24 @@ export function JobDetailHeader({
                 <span>Lamar Sekarang</span>
               </a>
             </Button>
+
+            <JobSaveButton
+              jobId={job.id}
+              jobTitle={job.title}
+              initialSaved={initialSaved}
+              size="lg"
+              variant="outline"
+              className="rounded-xl px-4"
+            />
+
+            <JobReportDialog
+              jobId={job.id}
+              jobTitle={job.title}
+              companyName={companyName}
+              triggerSize="lg"
+              triggerVariant="outline"
+              className="rounded-xl px-3"
+            />
           </div>
         </div>
       </div>
@@ -478,7 +508,7 @@ export function JobApplyCard({
             <Button asChild variant="outline" size="lg" className="gap-2">
               <a
                 href={`https://wa.me/?text=${encodeURIComponent(
-                  `Info Lowongan Kerja di NTB: ${jobTitle} di ${companyName} - https://kerjantb.id/jobs/${jobSlug}`,
+                  `Info Lowongan Kerja di NTB: ${jobTitle} di ${companyName} - https://kerjantb.id/loker/${jobSlug}`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -501,7 +531,8 @@ export function JobApplyCard({
 export interface JobCompanySidebarProps {
   company?: Company | null;
   companyName: string;
-  jobSlug: string;
+  jobId?: string;
+  jobTitle?: string;
 }
 
 /**
@@ -510,7 +541,8 @@ export interface JobCompanySidebarProps {
 export function JobCompanySidebar({
   company,
   companyName,
-  jobSlug,
+  jobId,
+  jobTitle,
 }: JobCompanySidebarProps) {
   return (
     <aside className="space-y-6 lg:w-80 lg:shrink-0">
@@ -580,10 +612,25 @@ export function JobCompanySidebar({
             travel, akomodasi, atau seragam) dalam seluruh tahapan seleksi
             rekrutmen.
           </p>
-          <div className="text-chart-1 flex items-center gap-1.5 text-xs font-semibold">
-            <CheckCircle2 className="size-3.5" />
-            <span>Lowongan ini Terverifikasi Aman</span>
+          <div className="text-chart-1 flex items-center justify-between gap-1.5 pt-1 text-xs font-semibold">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="size-3.5" />
+              <span>Lowongan ini Terverifikasi Aman</span>
+            </div>
           </div>
+          {jobId && jobTitle && (
+            <div className="pt-2">
+              <JobReportDialog
+                jobId={jobId}
+                jobTitle={jobTitle}
+                companyName={companyName}
+                triggerVariant="ghost"
+                triggerSize="sm"
+                triggerText="Laporkan Pungutan / Penipuan"
+                className="hover:bg-destructive/10 text-muted-foreground hover:text-destructive w-full justify-center text-xs"
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -597,13 +644,6 @@ export function JobCompanySidebar({
     </aside>
   );
 }
-
-// ---------------------------------------------------------------------------
-// SimilarJobsSection
-// ---------------------------------------------------------------------------
-
-import { JobCard, type JobCardProps } from "@/components/jobs/job-card";
-import { SectionHeader } from "@/components/common/section-header";
 
 export interface SimilarJobsSectionProps {
   jobs: JobCardProps["job"][];

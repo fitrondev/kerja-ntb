@@ -11,6 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { JobSaveButton } from "@/components/jobs/job-save-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -110,6 +111,15 @@ export function JobCard({ job }: JobCardProps) {
                 </Link>
               </h3>
             </div>
+
+            <JobSaveButton
+              jobId={job.id}
+              jobTitle={job.title}
+              size="icon"
+              variant="ghost"
+              showLabel={false}
+              className="text-muted-foreground hover:text-primary size-8 shrink-0"
+            />
           </div>
 
           {/* Location & Tags row */}

@@ -34,7 +34,7 @@ export function TrustCard({
         <div
           className={cn(
             "flex size-10 items-center justify-center rounded-xl",
-            iconClassName,
+            iconClassName
           )}
         >
           <Icon className="size-5" />

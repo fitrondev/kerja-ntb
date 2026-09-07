@@ -5,8 +5,8 @@ import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 
 import { SectionHeader } from "@/components/common/section-header";
-import { Card, CardContent } from "@/components/ui/card";
 import { SectionContainer } from "@/components/layout/section-container";
+import { Card, CardContent } from "@/components/ui/card";
 
 /** Mapping slug lokasi ke nama pulau */
 const ISLAND_MAP: Record<string, string> = {

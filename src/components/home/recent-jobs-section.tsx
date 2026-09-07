@@ -6,8 +6,8 @@ import { ArrowRight, Briefcase } from "lucide-react";
 
 import { SectionHeader } from "@/components/common/section-header";
 import { JobCard, type JobCardProps } from "@/components/jobs/job-card";
-import { Button } from "@/components/ui/button";
 import { SectionContainer } from "@/components/layout/section-container";
+import { Button } from "@/components/ui/button";
 
 export interface RecentJobsSectionProps {
   jobs: JobCardProps["job"][];
@@ -19,7 +19,10 @@ export interface RecentJobsSectionProps {
  * Hanya tampil jika ada lowongan yang dipublikasikan.
  * Menampilkan maksimal 6 lowongan paling baru.
  */
-export function RecentJobsSection({ jobs, totalCount }: RecentJobsSectionProps) {
+export function RecentJobsSection({
+  jobs,
+  totalCount,
+}: RecentJobsSectionProps) {
   if (jobs.length === 0) return null;
 
   return (

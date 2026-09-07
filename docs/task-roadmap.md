@@ -66,15 +66,16 @@ Fase 10: SEO Google Jobs (JSON-LD), Audit Log & Production Optimization
 
 ---
 
-### Fase 4: Halaman Publik & Job Search Engine (`/jobs`)
+### Fase 4: Halaman Publik & Job Search Engine (`/loker`) [SELESAI - ✅]
 
+- **Status:** Selesai (Diadaptasi ke rute lokalisasi `/loker`)
 - **Tugas Utama:**
-  1. Bangun Hero Section di Homepage dengan input pencarian instan (Kata Kunci & Dropdown Lokasi NTB).
-  2. Buat halaman `/jobs` dengan URL-driven filter state (`?q=&location=&type=&category=`).
-  3. Bangun komponen `JobCard` modern (Logo, Badge Verified, Judul, Perusahaan, Gaji, Tag Lokasi).
-  4. Buat halaman detail `/jobs/[slug]` dengan informasi deskripsi, syarat, tombol Lamar Sekarang, Simpan Lowongan, dan Laporkan.
+  1. [x] **Hero Section di Homepage**: Input pencarian instan (kata kunci `q` & dropdown 10 Kab/Kota NTB terhubung langsung ke database via Prisma).
+  2. [x] **Halaman `/loker` dengan URL-driven filter state**: Filter multifaset (`?q=&location=&type=&category=&workplace=&education=&salaryMin=&page=`), `ActiveFilterPills`, dan pagination responsif.
+  3. [x] **Komponen `JobCard` modern**: Logo perusahaan, inisial fallback, badge Verified NIB, judul, nama perusahaan, gaji (IDR/dirahasiakan), tag lokasi NTB, tipe kerja, tag keahlian, dan tombol quick bookmark/simpan lowongan.
+  4. [x] **Halaman detail `/loker/[slug]`**: Informasi deskripsi, tanggung jawab, syarat, benefit, keahlian, JSON-LD Schema.org JobPosting untuk Google Jobs, tombol Lamar Sekarang, tombol Simpan Lowongan interaktif (dengan fallback lokal & sinkronisasi DB), serta modal dialog Laporkan Lowongan (anti-penipuan & pungutan biaya terintegrasi ke Server Action dan tabel `Report`).
 - **Contoh Prompt Vibe Coding:**
-  > _"Bangun halaman `/jobs` dengan fitur pencarian dan filter multifaset. Buat Server Component yang mengambil data lowongan aktif dari MySQL via Prisma dengan pagination, serta Client Component untuk kontrol filter interaktif."_
+  > _"Bangun halaman `/loker` dengan fitur pencarian dan filter multifaset. Buat Server Component yang mengambil data lowongan aktif dari MySQL via Prisma dengan pagination, serta Client Component untuk kontrol filter interaktif."_
 
 ---
 

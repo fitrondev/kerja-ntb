@@ -31,7 +31,11 @@ export function ActiveFilterPills({ filters, params }: ActiveFilterPillsProps) {
         Filter aktif:
       </span>
       {filters.map((f) => (
-        <Link key={f.key} href={buildFilterUrl(f.key, params)} className="group">
+        <Link
+          key={f.key}
+          href={buildFilterUrl(f.key, params)}
+          className="group"
+        >
           <Badge
             variant="secondary"
             className="group-hover:border-destructive/40 group-hover:bg-destructive/10 group-hover:text-destructive gap-1.5 text-xs transition-colors"
@@ -59,7 +63,7 @@ export function ActiveFilterPills({ filters, params }: ActiveFilterPillsProps) {
 
 function buildFilterUrl(
   keyToRemove: string,
-  params: Record<string, string | string[] | undefined>,
+  params: Record<string, string | string[] | undefined>
 ): string {
   const p = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {

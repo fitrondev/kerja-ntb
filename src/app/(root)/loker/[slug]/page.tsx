@@ -10,6 +10,7 @@ import {
   SimilarJobsSection,
 } from "@/components/jobs/job-detail-components";
 import { SectionContainer } from "@/components/layout/section-container";
+import { getCurrentUser } from "@/lib/auth/clerk-sync";
 import { prisma } from "@/lib/db/prisma";
 import { formatSalary } from "@/lib/formatters";
 
@@ -62,7 +63,9 @@ export default async function JobDetailPage({
     include: {
       company: {
         include: {
-          verification: { select: { nib: true, legalName: true, status: true } },
+          verification: {
+            select: { nib: true, legalName: true, status: true },
+          },
         },
       },
       location: true,
@@ -86,7 +89,9 @@ export default async function JobDetailPage({
       OR: [{ categoryId: job.categoryId }, { locationId: job.locationId }],
     },
     include: {
-      company: { select: { name: true, slug: true, logoUrl: true, isVerified: true } },
+      company: {
+        select: { name: true, slug: true, logoUrl: true, isVerified: true },
+      },
       location: { select: { name: true, slug: true } },
       category: { select: { name: true, slug: true } },
       skills: { include: { skill: { select: { name: true, slug: true } } } },
@@ -104,7 +109,26 @@ export default async function JobDetailPage({
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  const salaryDisplay = formatSalary(job.salaryMin, job.salaryMax, job.isSalaryDisclosed);
+  const salaryDisplay = formatSalary(
+    job.salaryMin,
+    job.salaryMax,
+    job.isSalaryDisclosed
+  );
+
+  // Check if current user saved this job
+  let isSaved = false;
+  const user = await getCurrentUser();
+  if (user) {
+    const savedRecord = await prisma.savedJob.findUnique({
+      where: {
+        userId_jobId: {
+          userId: user.id,
+          jobId: job.id,
+        },
+      },
+    });
+    isSaved = Boolean(savedRecord);
+  }
 
   // Google Jobs structured data
   const jsonLd = {
@@ -152,7 +176,12 @@ export default async function JobDetailPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <JobDetailHeader job={job} companyName={companyName} initials={initials} />
+      <JobDetailHeader
+        job={job}
+        companyName={companyName}
+        initials={initials}
+        initialSaved={isSaved}
+      />
 
       <JobMetricsBar
         salaryDisplay={salaryDisplay}
@@ -184,7 +213,8 @@ export default async function JobDetailPage({
           <JobCompanySidebar
             company={job.company}
             companyName={companyName}
-            jobSlug={job.slug}
+            jobId={job.id}
+            jobTitle={job.title}
           />
         </div>
       </SectionContainer>

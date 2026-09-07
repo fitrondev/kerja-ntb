@@ -56,7 +56,7 @@ export function SectionHeader({
         isCenter
           ? "flex-col items-center text-center"
           : "flex-col justify-between sm:flex-row sm:items-end",
-        className,
+        className
       )}
     >
       <div className={cn("space-y-1", isCenter && "max-w-2xl")}>

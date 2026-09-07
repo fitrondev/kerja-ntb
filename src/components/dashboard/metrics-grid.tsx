@@ -110,9 +110,7 @@ function MetricCard({
         </div>
       </CardHeader>
       <CardContent>
-        {customValue ?? (
-          <div className="text-2xl font-bold">{value}</div>
-        )}
+        {customValue ?? <div className="text-2xl font-bold">{value}</div>}
         {footer}
       </CardContent>
     </Card>

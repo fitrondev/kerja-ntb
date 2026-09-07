@@ -16,8 +16,8 @@ export function JobsResultsBar({ totalJobs }: JobsResultsBarProps) {
       <div className="flex items-center gap-2">
         <h2 className="text-foreground text-sm font-semibold sm:text-base">
           Menampilkan{" "}
-          <span className="text-primary font-bold">{totalJobs}</span>{" "}
-          Lowongan Kerja
+          <span className="text-primary font-bold">{totalJobs}</span> Lowongan
+          Kerja
         </h2>
       </div>
       <JobFilterDrawer />

@@ -23,9 +23,15 @@ export function JobSearchBar({
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const locParam = searchParams.get("location") || "";
+  const matchedLoc = locations.find(
+    (l) =>
+      l.slug === locParam || l.name.toLowerCase() === locParam.toLowerCase()
+  );
+
   const [query, setQuery] = React.useState(searchParams.get("q") || "");
   const [selectedLocation, setSelectedLocation] = React.useState(
-    searchParams.get("location") || ""
+    matchedLoc ? matchedLoc.slug : locParam
   );
   const [selectedCategory, setSelectedCategory] = React.useState(
     searchParams.get("category") || ""
@@ -121,7 +127,7 @@ export function JobSearchBar({
             {locations.map((loc) => (
               <option
                 key={loc.slug}
-                value={loc.name}
+                value={loc.slug}
                 className="bg-popover text-popover-foreground"
               >
                 {loc.name}

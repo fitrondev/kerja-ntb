@@ -55,9 +55,23 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-3">
           {[
-            { type: "success" as const, label: "Test Toast Berhasil", tooltip: "Memicu notifikasi sukses via Sonner" },
-            { type: "info" as const, label: "Test Toast Info", tooltip: "Memicu notifikasi informasi via Sonner", variant: "secondary" as const },
-            { type: "warning" as const, label: "Test Toast Peringatan", tooltip: "Memicu notifikasi peringatan via Sonner", variant: "outline" as const },
+            {
+              type: "success" as const,
+              label: "Test Toast Berhasil",
+              tooltip: "Memicu notifikasi sukses via Sonner",
+            },
+            {
+              type: "info" as const,
+              label: "Test Toast Info",
+              tooltip: "Memicu notifikasi informasi via Sonner",
+              variant: "secondary" as const,
+            },
+            {
+              type: "warning" as const,
+              label: "Test Toast Peringatan",
+              tooltip: "Memicu notifikasi peringatan via Sonner",
+              variant: "outline" as const,
+            },
           ].map(({ type, label, tooltip, variant }) => (
             <Tooltip key={type}>
               <TooltipTrigger asChild>
