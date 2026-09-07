@@ -8,18 +8,18 @@
 
 ## 📊 Ringkasan Progres Keseluruhan
 
-| Fase        | Nama Modul / Fitur                                   |       Status        | Progress | Target Utama                                   |
-| :---------- | :--------------------------------------------------- | :-----------------: | :------: | :--------------------------------------------- |
-| **Fase 1**  | Inisialisasi Proyek, Database SumoPod & Prisma ORM   |  🟢 Selesai (95%)   |   95%    | Schema Prisma, Client Gen, DB Push             |
-| **Fase 2**  | Design System, Layout Publik & Primitif UI (shadcn)  | 🟡 Dalam Pengerjaan |   60%    | 61 UI Components, Navbar, Footer NTB           |
-| **Fase 3**  | Data Seeding (10 Daerah NTB & 12 Kategori Pekerjaan) |  🟡 Siap Eksekusi   |   70%    | Seed script dibuat, tinggal push & seed        |
-| **Fase 4**  | Halaman Publik & Job Search Engine (`/jobs`)         |  ⚪ Belum Dimulai   |    0%    | Homepage Hero, Filter Multifaset, Detail Loker |
-| **Fase 5**  | Autentikasi Clerk, Webhook Sync & RBAC Guard         |     🟡 Sebagian     |   30%    | Sign-in/Sign-up routes, Webhook sync MySQL     |
-| **Fase 6**  | Dashboard Pencari Kerja & Resume Builder (Multi-CV)  |  ⚪ Belum Dimulai   |    0%    | ATS Profil, Lamaran Saya, Loker Tersimpan      |
-| **Fase 7**  | Dashboard Perusahaan, Job Posting Wizard & NIB       |  ⚪ Belum Dimulai   |    0%    | Multi-step Form, Verifikasi NIB, ATS Pelamar   |
-| **Fase 8**  | Integrasi SumoPod Object Storage (S3 API)            |  ⚪ Belum Dimulai   |    0%    | Presigned S3 Upload, Logo, CV, Dokumen NIB     |
-| **Fase 9**  | Dashboard Superadmin & Moderasi Lowongan             |  ⚪ Belum Dimulai   |    0%    | Antrean Verifikasi Loker & NIB, Audit Log      |
-| **Fase 10** | SEO Google Jobs (JSON-LD), Audit & Optimasi          |  ⚪ Belum Dimulai   |    0%    | Schema.org, Dynamic Sitemap, Production Build  |
+| Fase        | Nama Modul / Fitur                                   |      Status      | Progress | Target Utama                                   |
+| :---------- | :--------------------------------------------------- | :--------------: | :------: | :--------------------------------------------- |
+| **Fase 1**  | Inisialisasi Proyek, Database SumoPod & Prisma ORM   |    🟢 Selesai    |   100%   | Schema Prisma, Client Gen, DB Push             |
+| **Fase 2**  | Design System, Layout Publik & Primitif UI (shadcn)  |    🟢 Selesai    |   100%   | 61 UI Components, Navbar, Footer NTB           |
+| **Fase 3**  | Data Seeding (10 Daerah NTB & 12 Kategori Pekerjaan) |    🟢 Selesai    |   100%   | 10 Daerah, 12 Kategori, 5 PT, 8 Loker NTB      |
+| **Fase 4**  | Halaman Publik & Job Search Engine (`/jobs`)         |    🟢 Selesai    |   100%   | Homepage Hero, Filter Multifaset, Detail Loker |
+| **Fase 5**  | Autentikasi Clerk, Webhook Sync & RBAC Guard         |   🟡 Sebagian    |   30%    | Sign-in/Sign-up routes, Webhook sync MySQL     |
+| **Fase 6**  | Dashboard Pencari Kerja & Resume Builder (Multi-CV)  | ⚪ Belum Dimulai |    0%    | ATS Profil, Lamaran Saya, Loker Tersimpan      |
+| **Fase 7**  | Dashboard Perusahaan, Job Posting Wizard & NIB       | ⚪ Belum Dimulai |    0%    | Multi-step Form, Verifikasi NIB, ATS Pelamar   |
+| **Fase 8**  | Integrasi SumoPod Object Storage (S3 API)            | ⚪ Belum Dimulai |    0%    | Presigned S3 Upload, Logo, CV, Dokumen NIB     |
+| **Fase 9**  | Dashboard Superadmin & Moderasi Lowongan             | ⚪ Belum Dimulai |    0%    | Antrean Verifikasi Loker & NIB, Audit Log      |
+| **Fase 10** | SEO Google Jobs (JSON-LD), Audit & Optimasi          | ⚪ Belum Dimulai |    0%    | Schema.org, Dynamic Sitemap, Production Build  |
 
 ---
 
@@ -40,8 +40,7 @@
 - [x] Konfigurasi `prisma7.config.ts` untuk Prisma 7
 - [x] Singleton Prisma Client di `src/lib/db/prisma.ts`
 - [x] Generate Prisma Client (`bunx prisma generate`)
-- [ ] **Push Skema ke SumoPod MySQL** (`bunx prisma db push`)
-  > _Catatan:_ Gunakan `db push` karena user MySQL SumoPod tidak memiliki hak `CREATE DATABASE` untuk shadow database migrasi.
+- [x] **Push Skema ke SumoPod MySQL** (`bunx prisma db push`)
 
 ---
 
@@ -50,15 +49,17 @@
 - [x] Setup tema OKLCH semantic tokens (Primary, Secondary, Accent, Chart, Sidebar)
 - [x] Pasang Providers global di `src/components/providers.tsx` (`ThemeProvider`, `TooltipProvider`, `Sonner Toaster`)
 - [x] Instalasi komponen shadcn/ui radix-nova (Button, Input, Card, Badge, Dialog, Select, Dropdown, Table, Sheet, Sidebar, dll.)
-- [ ] **Navbar Publik (`src/components/layout/navbar.tsx`)**:
-  - [ ] Brand Logo KerjaNTB dengan badge wilayah "NTB"
-  - [ ] Navigasi: Cari Lowongan, Perusahaan, Kategori, Tentang Kami
-  - [ ] Action buttons: Theme Toggle, Masuk / Daftar (Clerk UserButton jika logged in)
-  - [ ] Mobile responsive navigation drawer (Sheet)
-- [ ] **Footer Publik (`src/components/layout/footer.tsx`)**:
-  - [ ] Daftar link cepat ke 10 Kabupaten/Kota se-NTB
-  - [ ] Tautan kategori populer di NTB (Pariwisata, Pertambangan, IT, dll.)
-  - [ ] Legal disclaimer, copyright, dan kontak Disnakertrans/Layanan Pengaduan
+- [x] Standardisasi kontainer section dengan `SectionContainer` (`src/components/layout/section-container.tsx` & `.section-container`)
+- [x] Komponen badge kepercayaan NTB `VerifiedBadge` (`src/components/ui/verified-badge.tsx`)
+- [x] **Navbar Publik (`src/components/layout/navbar.tsx`)**:
+  - [x] Brand Logo KerjaNTB dengan badge wilayah "NTB"
+  - [x] Navigasi: Cari Lowongan, Perusahaan, Kategori, Wilayah NTB, Tentang Kami
+  - [x] Action buttons: Theme Toggle, Pasang Lowongan, Masuk / Daftar (Clerk UserButton jika logged in)
+  - [x] Mobile responsive navigation drawer (Sheet) di `src/components/layout/mobile-nav.tsx`
+- [x] **Footer Publik (`src/components/layout/footer.tsx`)**:
+  - [x] Daftar link cepat ke 10 Kabupaten/Kota se-NTB
+  - [x] Tautan kategori populer di NTB (Pariwisata, Pertambangan, IT, dll.)
+  - [x] Legal disclaimer, copyright, dan kontak Disnakertrans/Layanan Pengaduan Anti-Penipuan
 
 ---
 
@@ -67,40 +68,36 @@
 - [x] Buat script `prisma/seed.ts`
   - [x] 10 Daerah resmi NTB (Kota Mataram, Lombok Barat, Tengah, Timur, Utara, Sumbawa, Sumbawa Barat, Dompu, Bima, Kota Bima)
   - [x] 12 Kategori lowongan kerja lokal
-- [ ] Tambahkan data dummy ke `seed.ts` untuk preview:
-  - [ ] 2 Akun Perusahaan demo (misal: "PT Amman Mineral Nusa Tenggara", "Lombok Beach Resort")
-  - [ ] 5-8 Contoh lowongan kerja aktif bervariasi lokasi & kategori
-- [ ] Eksekusi seeding: `bun run prisma/seed.ts`
-- [ ] Verifikasi data tersimpan via Prisma Studio (`bunx prisma studio`)
+- [x] Tambahkan data dummy ke `seed.ts` untuk preview:
+  - [x] 5 Akun Perusahaan demo (PT Amman Mineral, Katamaran Resort, Bank NTB Syariah, Sasak Digital, Agro Sentra Dompu)
+  - [x] 8 Contoh lowongan kerja aktif bervariasi lokasi se-NTB & kategori
+- [x] Eksekusi seeding: `bun run prisma/seed.ts`
+- [x] Verifikasi data tersimpan via query database
 
 ---
 
 ### Fase 4: Halaman Publik & Job Search Engine (`/jobs`)
 
-- [ ] **Homepage (`src/app/(root)/page.tsx`)**:
-  - [ ] Hero Section: Headline dampak lokal NTB + Quick Search bar (Kata Kunci + Dropdown 10 Wilayah NTB)
-  - [ ] Badge Trust: "Platform Resmi Lowongan Terverifikasi NTB — Bebas Penipuan"
-  - [ ] Grid Kategori Populer (Card dengan icon Lucide + jumlah loker aktif)
-  - [ ] Section "Lowongan Terbaru di NTB" (Grid 6 loker teranyar)
-  - [ ] Banner CTA untuk Pemberi Kerja / Perusahaan NTB
-- [ ] **Halaman Pencarian Lowongan (`src/app/(root)/jobs/page.tsx`)**:
-  - [ ] Search & Multi-facet Filter bar:
-    - [ ] Keyword (q)
-    - [ ] Wilayah (10 Kabupaten/Kota NTB)
-    - [ ] Tipe Pekerjaan (Full-time, Part-time, Kontrak, Magang, Freelance)
-    - [ ] Workplace Type (On-site, Hybrid, Remote)
-    - [ ] Rentang Gaji (Min - Max IDR)
-    - [ ] Tingkat Pendidikan & Pengalaman
-  - [ ] Server Component data fetching dengan Prisma & pagination
-  - [ ] Komponen `JobCard` (Logo perusahaan, badge Terverifikasi, gaji disembunyikan/tampil, lokasi, tag)
-  - [ ] State kosong (Empty State) jika pencarian tidak ditemukan
-- [ ] **Halaman Detail Lowongan (`src/app/(root)/jobs/[slug]/page.tsx`)**:
-  - [ ] Header: Judul, Nama Perusahaan, Status Verifikasi NIB, Tanggal Tayang
-  - [ ] Detail gaji, tipe kontrak, lokasi kantor di NTB, minimal pendidikan
-  - [ ] Deskripsi lengkap & kualifikasi pekerjaan (Rich Text / Markdown render)
-  - [ ] Sidebar CTA: Tombol "Lamar Sekarang", "Simpan Lowongan", "Bagikan"
-  - [ ] Tombol "Laporkan Lowongan Mencurigakan" (Anti-penipuan)
-  - [ ] Card Profil Perusahaan singkat + tautan loker lain dari perusahaan yang sama
+- [x] **Homepage (`src/app/(root)/page.tsx`)**:
+  - [x] Hero Section: Headline dampak lokal NTB + Quick Search bar (Kata Kunci + Dropdown 10 Wilayah NTB)
+  - [x] Badge Trust: "Platform Resmi Lowongan Terverifikasi NTB — Bebas Penipuan"
+  - [x] Grid Kategori Populer (Card dengan icon Lucide + jumlah loker aktif)
+  - [x] Section "Lowongan Terbaru di NTB" (Grid 6 loker teranyar terhubung langsung ke Prisma)
+  - [x] Banner CTA untuk Pemberi Kerja / Perusahaan NTB
+- [x] **Halaman Pencarian Lowongan (`src/app/(root)/jobs/page.tsx`)**:
+  - [x] Search & Multi-facet Filter bar (Keyword, Wilayah, Kategori, Tipe Kerja, Workplace, Gaji, Pendidikan)
+  - [x] Server Component data fetching dengan Prisma & pagination
+  - [x] Komponen `JobCard` (Logo perusahaan, badge Terverifikasi NIB, rentang gaji, lokasi NTB, skills)
+  - [x] Komponen `JobFilters` & mobile drawer `JobFilterDrawer`
+  - [x] State kosong (`JobEmptyState`) jika pencarian tidak ditemukan
+- [x] **Halaman Detail Lowongan (`src/app/(root)/jobs/[slug]/page.tsx`)**:
+  - [x] Header: Judul, Nama Perusahaan, Status Verifikasi NIB, Tanggal Tayang & Deadline
+  - [x] Key metrics: Gaji, Tipe Kontrak, Lokasi Kantor di NTB, Minimal Pendidikan, Pengalaman
+  - [x] Deskripsi lengkap, tanggung jawab, kualifikasi, benefit, dan skill pills
+  - [x] Fast Apply Section (Mendukung Platform KerjaNTB, Email HRD, dan Website Perusahaan)
+  - [x] Peringatan Keamanan Anti-Penipuan KerjaNTB
+  - [x] Profil Singkat Perusahaan + Lowongan Serupa di NTB
+  - [x] JSON-LD Google Jobs Schema (`schema.org/JobPosting`) untuk SEO optimal
 
 ---
 

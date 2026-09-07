@@ -42,11 +42,16 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 /**
+ * URL Logo Resmi KerjaNTB di SumoPod Storage
+ */
+export const KERJANTB_LOGO_URL = "/api/storage/file/Logo/logo.webp";
+
+/**
  * Helper untuk mendapatkan URL publik berkas (Avatar, Logo, Cover Blog)
  */
 export function getStoragePublicUrl(storageKey: string): string {
   const cleanKey = storageKey.startsWith("/")
     ? storageKey.slice(1)
     : storageKey;
-  return `${S3_PUBLIC_URL}/${cleanKey}`;
+  return `/api/storage/file/${cleanKey}`;
 }

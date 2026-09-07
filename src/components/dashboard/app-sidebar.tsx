@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -59,7 +60,7 @@ const mainNavItems = [
   },
   {
     title: "Cari Lowongan",
-    url: "/jobs",
+    url: "/loker",
     icon: Compass,
     badge: null,
   },
@@ -80,13 +81,13 @@ const mainNavItems = [
 const employerNavItems = [
   {
     title: "Kelola Lowongan",
-    url: "/dashboard/jobs",
+    url: "/dashboard/loker",
     icon: Briefcase,
     badge: null,
   },
   {
     title: "Pasang Loker Baru",
-    url: "/dashboard/jobs/new",
+    url: "/dashboard/loker/baru",
     icon: PlusCircle,
     badge: "Pro",
   },
@@ -123,8 +124,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard" className="flex items-center gap-3">
-                <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg shadow-sm">
-                  <Briefcase className="size-4" />
+                <div className="flex aspect-square size-8 items-center justify-center overflow-hidden rounded-lg">
+                  <Image
+                    src="/api/storage/file/Logo/logo.webp"
+                    alt="Logo KerjaNTB"
+                    width={32}
+                    height={32}
+                    className="size-8 object-contain"
+                  />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <div className="flex items-center gap-1.5">
