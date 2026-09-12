@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import {
+  Activity,
   AlertTriangle,
   ArrowRight,
   Building2,
@@ -16,6 +17,10 @@ import {
   Users,
 } from "lucide-react";
 
+import {
+  RecentAuditLogItem,
+  RecentAuditLogs,
+} from "@/components/dashboard/admin/recent-audit-logs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,7 +40,7 @@ export default async function AdminDashboardPage() {
     redirect("/dashboard");
   }
 
-  // Fetch semua metrik riil sistem secara paralel
+  // Fetch semua metrik riil sistem dan data moderasi secara paralel
   const [
     totalUsersCount,
     totalCompaniesCount,
@@ -46,6 +51,7 @@ export default async function AdminDashboardPage() {
     recentPendingJobs,
     recentVerifications,
     recentReports,
+    recentAuditLogs,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.company.count(),
@@ -74,7 +80,35 @@ export default async function AdminDashboardPage() {
       take: 5,
       orderBy: { createdAt: "desc" },
     }),
+    prisma.auditLog.findMany({
+      include: {
+        actor: {
+          select: {
+            email: true,
+            profile: { select: { fullName: true } },
+          },
+        },
+      },
+      take: 6,
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
+
+  const serializedAuditLogs: RecentAuditLogItem[] = recentAuditLogs.map(
+    (log) => ({
+      id: log.id,
+      action: log.action,
+      entityType: log.entityType,
+      actorEmail: log.actor.email,
+      actorName: log.actor.profile?.fullName || null,
+      createdAt: new Date(log.createdAt).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    })
+  );
 
   return (
     <div className="space-y-6">
@@ -125,9 +159,33 @@ export default async function AdminDashboardPage() {
             size="sm"
             className="border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 rounded-xl font-semibold"
           >
+            <Link href="/dashboard/admin/laporan" className="gap-2">
+              <AlertTriangle className="size-4" />
+              <span>Laporan Masuk ({pendingReportsCount})</span>
+            </Link>
+          </Button>
+
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 rounded-xl font-semibold"
+          >
+            <Link href="/dashboard/admin/audit-log" className="gap-2">
+              <Activity className="size-4" />
+              <span>Jejak Audit</span>
+            </Link>
+          </Button>
+
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 rounded-xl font-semibold"
+          >
             <Link href="/dashboard/admin/pengguna" className="gap-2">
               <Users className="size-4" />
-              <span>Kelola &amp; Ubah Role ({totalUsersCount})</span>
+              <span>Kelola Role ({totalUsersCount})</span>
             </Link>
           </Button>
         </div>
@@ -336,7 +394,7 @@ export default async function AdminDashboardPage() {
                     variant="outline"
                     className="h-8 shrink-0 gap-1 text-xs"
                   >
-                    <Link href={`/loker/${job.slug}`}>
+                    <Link href="/dashboard/admin/moderasi">
                       <span>Tinjau</span>
                       <ExternalLink className="size-3" />
                     </Link>
@@ -450,6 +508,9 @@ export default async function AdminDashboardPage() {
           </Card>
         </div>
       </div>
+
+      {/* Baris Bawah: Widget Jejak Audit Sistem */}
+      <RecentAuditLogs logs={serializedAuditLogs} />
     </div>
   );
 }

@@ -60,6 +60,7 @@ export interface PresignedUploadParams {
 export interface PresignedUploadResult {
   uploadUrl: string;
   storageKey: string;
+  fileUrl: string;
   publicUrl: string | null;
   isPrivate: boolean;
   expiresInSeconds: number;
@@ -140,10 +141,13 @@ export async function getPresignedUploadUrl({
     expiresIn: expiresInSeconds,
   });
 
+  const fileUrl = `/api/storage/file/${storageKey}`;
+
   return {
     uploadUrl,
     storageKey,
-    publicUrl: constraint.isPrivate ? null : `${S3_PUBLIC_URL}/${storageKey}`,
+    fileUrl,
+    publicUrl: constraint.isPrivate ? null : fileUrl,
     isPrivate: constraint.isPrivate,
     expiresInSeconds,
   };

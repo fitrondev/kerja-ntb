@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -79,12 +80,13 @@ export function JobCard({ job }: JobCardProps) {
         <div className="space-y-3">
           {/* Header row: Company logo/initials + Company info & badges */}
           <div className="flex items-start gap-3.5">
-            <div className="bg-primary/10 text-primary border-primary/20 flex size-12 shrink-0 items-center justify-center rounded-xl border text-sm font-bold shadow-2xs">
+            <div className="bg-primary/10 text-primary border-primary/20 relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border text-sm font-bold shadow-2xs">
               {job.company?.logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={job.company.logoUrl}
                   alt={companyName}
+                  width={48}
+                  height={48}
                   className="size-full rounded-xl object-contain p-1"
                 />
               ) : (
@@ -141,7 +143,7 @@ export function JobCard({ job }: JobCardProps) {
           </div>
 
           {/* Skills pills */}
-          {job.skills && job.skills.length > 0 && (
+          {job.skills && job.skills.length > 0 ? (
             <div className="flex flex-wrap gap-1.5 pt-1">
               {job.skills.slice(0, 3).map(({ skill }) => (
                 <Badge
@@ -152,13 +154,13 @@ export function JobCard({ job }: JobCardProps) {
                   {skill.name}
                 </Badge>
               ))}
-              {job.skills.length > 3 && (
+              {job.skills.length > 3 ? (
                 <span className="text-muted-foreground self-center text-[11px]">
                   +{job.skills.length - 3} lainnya
                 </span>
-              )}
+              ) : null}
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Footer: Salary & Time & Action */}

@@ -32,35 +32,35 @@ Fase 10: SEO Google Jobs (JSON-LD), Audit Log & Production Optimization
 
 ## Detail Fase & Prompt Vibe Coding Siap Pakai
 
-### Fase 1: Setup Lingkungan & Database SumoPod MySQL
+### Fase 1: Setup Lingkungan & Database SumoPod MySQL [SELESAI - ✅]
 
 - **Tugas Utama:**
-  1. Jalankan script `./skill.sh` untuk menginstal seluruh dependency.
-  2. Buat file `prisma/schema.prisma` sesuai dengan `docs/database-schema.md`.
-  3. Konfigurasi connection string MySQL SumoPod di `.env`.
-  4. Jalankan migrasi schema dan generate Prisma client.
+  1. [x] Jalankan script `./skill.sh` untuk menginstal seluruh dependency.
+  2. [x] Buat file `prisma/schema.prisma` sesuai dengan `docs/database-schema.md`.
+  3. [x] Konfigurasi connection string MySQL SumoPod di `.env`.
+  4. [x] Jalankan migrasi schema dan generate Prisma client.
 - **Contoh Prompt Vibe Coding:**
   > _"Siapkan setup Prisma dengan provider MySQL untuk SumoPod sesuai dengan skema di `docs/database-schema.md`. Buat singleton Prisma client di `src/lib/db/prisma.ts` dan pastikan konfigurasi connection pooling bekerja secara aman."_
 
 ---
 
-### Fase 2: Design System & Komponen UI (shadcn radix-nova & OKLCH Theme)
+### Fase 2: Design System & Komponen UI (shadcn radix-nova & OKLCH Theme) [SELESAI - ✅]
 
 - **Tugas Utama:**
-  1. _Status:_ shadcn/ui telah diinisialisasi via preset `b2BVBXALw` (`radix-nova`) dengan CSS variables OKLCH di `src/app/globals.css`.
-  2. Tambahkan komponen UI shadcn yang dibutuhkan: `bunx --bun shadcn@latest add input select dialog card badge dropdown-menu tabs sheet separator skeleton avatar table`.
-  3. Buat layout publik utama: `Navbar` (menggunakan `bg-background/80 backdrop-blur border-border`, tombol CTA `bg-primary text-primary-foreground`), `Footer` (dengan daftar 10 daerah NTB), dan `MobileNav` (Sheet).
+  1. [x] _Status:_ shadcn/ui telah diinisialisasi via preset `b2BVBXALw` (`radix-nova`) dengan CSS variables OKLCH di `src/app/globals.css`.
+  2. [x] Tambahkan komponen UI shadcn yang dibutuhkan: `input select dialog card badge dropdown-menu tabs sheet separator skeleton avatar table`.
+  3. [x] Buat layout publik utama: `Navbar` (menggunakan `bg-background/80 backdrop-blur border-border`, tombol CTA `bg-primary text-primary-foreground`), `Footer` (dengan daftar 10 daerah NTB), dan `MobileNav` (Sheet).
 - **Contoh Prompt Vibe Coding:**
   > _"Buat komponen Navbar dan Footer profesional untuk KerjaNTB menggunakan komponen shadcn/ui dan token warna OKLCH dari globals.css. Tampilkan logo KerjaNTB, navigasi (Lowongan, Perusahaan, Kategori, Wilayah NTB), serta tombol CTA Masuk dan Pasang Lowongan. Gunakan utility classes semantik seperti 'bg-primary text-primary-foreground', 'border-border', dan 'text-muted-foreground'. Pastikan 100% responsif dengan Mobile Drawer Sheet."_
 
 ---
 
-### Fase 3: Data Seeding 10 Kabupaten/Kota NTB & Kategori
+### Fase 3: Data Seeding 10 Kabupaten/Kota NTB & Kategori [SELESAI - ✅]
 
 - **Tugas Utama:**
-  1. Buat script `prisma/seed.ts` yang mengisi 10 entitas wilayah resmi NTB.
-  2. Tambahkan minimal 12 kategori pekerjaan populer di NTB (Pariwisata/Hospitality, IT, Pertambangan, Perdagangan, Pendidikan, Kesehatan).
-  3. Tambahkan beberapa dummy lowongan kerja dan perusahaan untuk keperluan preview.
+  1. [x] Buat script `prisma/seed.ts` yang mengisi 10 entitas wilayah resmi NTB.
+  2. [x] Tambahkan minimal 12 kategori pekerjaan populer di NTB (Pariwisata/Hospitality, IT, Pertambangan, Perdagangan, Pendidikan, Kesehatan).
+  3. [x] Tambahkan beberapa dummy lowongan kerja dan perusahaan untuk keperluan preview. Hubungkan script ke `package.json` (`bun run db:seed`).
 - **Contoh Prompt Vibe Coding:**
   > _"Buat script seeding database di `prisma/seed.ts` yang menginputkan seluruh 10 Kabupaten/Kota di NTB dan 12 kategori lowongan kerja. Hubungkan script ke `package.json` agar dapat dijalankan via `bun run db:seed`."_
 
@@ -79,12 +79,12 @@ Fase 10: SEO Google Jobs (JSON-LD), Audit Log & Production Optimization
 
 ---
 
-### Fase 5: Autentikasi Clerk & Sinkronisasi Pengguna
+### Fase 5: Autentikasi Clerk & Sinkronisasi Pengguna [SELESAI - ✅]
 
 - **Tugas Utama:**
-  1. Konfigurasi Clerk Middleware untuk rute privat (`/dashboard`, `/employer`, `/admin`).
-  2. Buat route handler `/api/webhooks/clerk` untuk menangkap event pendaftaran dan membuat record `User` di MySQL.
-  3. Buat helper otorisasi `getCurrentUser()` dan `checkRole()`.
+  1. [x] Konfigurasi Clerk Middleware untuk rute privat (`/dashboard`, `/dashboard/employer`, `/dashboard/admin`).
+  2. [x] Buat route handler `/api/webhooks/clerk` untuk menangkap event pendaftaran dan membuat record `User` di MySQL.
+  3. [x] Buat helper otorisasi `getCurrentUser()` dan `checkRole()`.
 - **Contoh Prompt Vibe Coding:**
   > _"Implementasikan Route Handler webhook Clerk di `/api/webhooks/clerk` menggunakan library `svix`. Simpan pengguna baru ke tabel `User` di MySQL dan berikan role `INDIVIDUAL` secara default."_
 
@@ -104,54 +104,56 @@ Fase 10: SEO Google Jobs (JSON-LD), Audit Log & Production Optimization
 
 ---
 
-### Fase 7: Dashboard Perusahaan & Multi-Step Job Posting
+### Fase 7: Dashboard Perusahaan & Multi-Step Job Posting [SELESAI - ✅]
 
+- **Status:** Selesai (Rute terpadu `/dashboard/employer`, `/dashboard/loker/baru`, `/dashboard/company`, `/dashboard/verification`, `/dashboard/employer/pelamar`)
 - **Tugas Utama:**
-  1. Dashboard `dashboard/employer` (statistik pelamar baru, lowongan aktif).
-  2. Multi-step form pembuatan lowongan:
-     - Step 1: Informasi Dasar
-     - Step 2: Kompensasi Gaji
-     - Step 3: Deskripsi & Tanggung Jawab
-     - Step 4: Kualifikasi & Pendidikan
-     - Step 5: Metode Lamaran
-     - Step 6: Preview & Submit
-  3. Logika Moderasi: Jika perusahaan berstatus `isVerified = true`, lowongan langsung `PUBLISHED`. Jika belum, masuk ke `PENDING_REVIEW`.
-  4. Form pengajuan verifikasi NIB dan upload dokumen legalitas.
+  1. [x] **Dashboard `/dashboard/employer` & Manajemen Loker (`/dashboard/employer/loker`)**: Statistik lowongan aktif, pelamar baru, tabel filter loker dengan pause/publish/close status switch, delete modal, dan rute edit (`/dashboard/employer/loker/[id]/edit`).
+  2. [x] **Multi-Step Job Posting Wizard (`/dashboard/loker/baru` & `/dashboard/employer/jobs/create`)**:
+     - Step 1: Informasi Dasar (Judul, Kategori, 10 Kab/Kota NTB, Tipe Pekerjaan, Pengalaman)
+     - Step 2: Kompensasi Gaji (UMP NTB 2026 check/banner, Min/Max/Tampilkan Gaji)
+     - Step 3: Deskripsi & Fasilitas/Benefit
+     - Step 4: Kualifikasi & Tag Keterampilan
+     - Step 5: Metode Lamaran (Internal Platform vs External Link/Email) & Batas Waktu
+     - Step 6: Live Mockup Card Preview & Aksi Publikasi
+  3. [x] **Logika Moderasi Otomatis**: Jika perusahaan berstatus `isVerified = true` (atau verifikasi APPROVED), lowongan otomatis diterbitkan sebagai `PUBLISHED`. Jika belum terverifikasi, status otomatis `PENDING_REVIEW` dengan banner notifikasi moderasi admin.
+  4. [x] **Profil Perusahaan & Pengajuan Verifikasi NIB (`/dashboard/company` & `/dashboard/verification`)**: Form profil perusahaan dengan upload logo SumoPod S3, form verifikasi NIB 13-digit dengan upload dokumen izin usaha PDF/JPG, dan pelacak status verifikasi (Pending/Approved/Rejected).
+  5. [x] **ATS Employer Pelamar (`/dashboard/employer/pelamar`)**: Filter lowongan, tab status pelamar, preview resume/CV, tautan cepat WhatsApp, dan modal evaluasi status (Undang Interview, Tolak dengan alasan, Terpilih, Catatan HR internal). Didukung Server Action `updateEmployerApplicationStatusAction`.
 - **Contoh Prompt Vibe Coding:**
   > _"Bangun Multi-step wizard untuk pasang lowongan di `dashboard/employer/jobs/create`. Gunakan Zod untuk memvalidasi tiap langkah. Terapkan logika status otomatis: PUBLISHED untuk perusahaan terverifikasi dan PENDING_REVIEW untuk perusahaan baru."_
 
 ---
 
-### Fase 8: Integrasi SumoPod Object Storage
+### Fase 8: Integrasi SumoPod Object Storage [SELESAI - ✅]
 
 - **Tugas Utama:**
-  1. Buat utilitas S3 Client di `src/lib/storage/s3.ts`.
-  2. Implementasikan helper presigned upload URL di `src/lib/storage/upload.ts`.
-  3. Hubungkan komponen upload avatar, logo perusahaan, dan berkas CV ke SumoPod S3.
+  1. [x] Buat utilitas S3 Client di `src/lib/storage/s3.ts`.
+  2. [x] Implementasikan helper presigned upload URL di `src/lib/storage/upload.ts`.
+  3. [x] Hubungkan komponen upload avatar, logo perusahaan, dan berkas CV ke SumoPod S3.
 - **Contoh Prompt Vibe Coding:**
   > _"Integrasikan SumoPod Object Storage menggunakan `@aws-sdk/client-s3`. Buat Server Action yang menghasilkan presigned PUT URL untuk upload file resume PDF langsung dari browser dan simpan path file ke database."_
 
 ---
 
-### Fase 9: Dashboard Superadmin & Moderasi
+### Fase 9: Dashboard Superadmin & Moderasi [SELESAI - ✅]
 
 - **Tugas Utama:**
-  1. Halaman `/dashboard` dengan metrik jumlah lowongan pending, verifikasi pending, dan laporan baru.
-  2. Daftar review lowongan: Tombol Approve dan Reject (modal input alasan penolakan wajib).
-  3. Review verifikasi perusahaan: Verifikasi NIB dan preview dokumen legalitas privat via signed URL.
-  4. Manajemen laporan (Reports): Tindakan pause/remove job atau suspend user.
-  5. Pencatatan Audit Log pada setiap aksi admin.
+  1. [x] Halaman `/dashboard` dengan metrik jumlah lowongan pending, verifikasi pending, dan laporan baru.
+  2. [x] Daftar review lowongan: Tombol Approve dan Reject (modal input alasan penolakan wajib).
+  3. [x] Review verifikasi perusahaan: Verifikasi NIB dan preview dokumen legalitas privat via signed URL.
+  4. [x] Manajemen laporan (Reports): Tindakan pause/remove job atau suspend user.
+  5. [x] Pencatatan Audit Log pada setiap aksi admin.
 - **Contoh Prompt Vibe Coding:**
   > _"Bangun halaman antrean moderasi lowongan di `dashboard/jobs/pending`. Buat tombol Approve dan Reject dengan konfirmasi dialog. Simpan setiap aksi admin ke dalam tabel `AuditLog` di MySQL."_
 
 ---
 
-### Fase 10: SEO Google Jobs, Performance & Launch Prep
+### Fase 10: SEO Google Jobs, Performance & Launch Prep [SELESAI - ✅]
 
 - **Tugas Utama:**
-  1. Injeksi JSON-LD `JobPosting` pada setiap halaman lowongan.
-  2. Buat dynamic sitemap di `src/app/sitemap.ts` (mencakup seluruh jobs, categories, dan 10 locations NTB).
-  3. Optimasi performa gambar via `next/image` dengan domain remote SumoPod Storage.
-  4. Pengujian end-to-end skenario pelamaran kerja dan moderasi.
+  1. [x] Injeksi JSON-LD `JobPosting` pada setiap halaman lowongan.
+  2. [x] Buat dynamic sitemap di `src/app/sitemap.ts` (mencakup seluruh jobs, categories, dan 10 locations NTB).
+  3. [x] Optimasi performa gambar via `next/image` dengan domain remote SumoPod Storage.
+  4. [x] Pengujian end-to-end skenario pelamaran kerja dan moderasi.
 - **Contoh Prompt Vibe Coding:**
   > _"Buat script JSON-LD terstruktur sesuai standar Schema.org/JobPosting di halaman `/jobs/[slug]`. Buat pula generator `sitemap.ts` dinamis yang memetakan seluruh lowongan aktif dan halaman 10 kabupaten/kota NTB."_

@@ -91,8 +91,9 @@ export function JobApplyModal({
     }
 
     const res = await upload(file, "RESUME");
-    if (res && res.publicUrl) {
-      setCustomResumeUrl(res.publicUrl);
+    const uploadedUrl = res?.fileUrl || res?.publicUrl;
+    if (res && uploadedUrl) {
+      setCustomResumeUrl(uploadedUrl);
       setSelectedResumeId(""); // unselect existing resume
       toast.success("Berkas CV kustom berhasil diunggah!");
     } else {

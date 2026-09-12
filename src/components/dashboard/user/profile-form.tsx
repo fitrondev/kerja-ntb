@@ -84,8 +84,9 @@ export function ProfileForm({
     }
 
     const res = await upload(file, "AVATAR");
-    if (res && res.publicUrl) {
-      setAvatarUrl(res.publicUrl);
+    const uploadedUrl = res?.fileUrl || res?.publicUrl;
+    if (res && uploadedUrl) {
+      setAvatarUrl(uploadedUrl);
       toast.success("Foto profil berhasil diunggah.");
     } else {
       toast.error("Gagal mengunggah foto ke penyimpanan.");

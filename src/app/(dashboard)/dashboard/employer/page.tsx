@@ -44,11 +44,12 @@ export default async function EmployerDashboardPage() {
   const company = user.company
     ? await prisma.company.findUnique({
         where: { id: user.company.id },
-        include: { verification: true },
+        include: { verification: true, location: { select: { name: true } } },
       })
     : await prisma.company.findFirst({
-        include: { verification: true },
-      }); // Fallback untuk testing bila belum mengaitkan company
+        where: { userId: user.id },
+        include: { verification: true, location: { select: { name: true } } },
+      });
 
   if (!company) {
     return (
@@ -102,7 +103,7 @@ export default async function EmployerDashboardPage() {
       where: { job: { companyId: company.id } },
       include: {
         user: { include: { profile: true } },
-        job: { select: { title: true, slug: true } },
+        job: { select: { id: true, title: true, slug: true } },
       },
       take: 5,
       orderBy: { createdAt: "desc" },
@@ -257,7 +258,8 @@ export default async function EmployerDashboardPage() {
             </div>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-foreground truncate text-sm font-bold">
-                {company.address ? "NTB" : "Lengkapi Alamat"}
+                {company.location?.name ??
+                  (company.address ? "NTB" : "Lengkapi Alamat")}
               </span>
             </div>
           </CardContent>
@@ -436,7 +438,11 @@ export default async function EmployerDashboardPage() {
                       variant="outline"
                       className="h-7 px-2.5 text-[11px]"
                     >
-                      <Link href={`/dashboard/employer/pelamar`}>Review</Link>
+                      <Link
+                        href={`/dashboard/employer/pelamar?jobId=${app.job.id}`}
+                      >
+                        Review
+                      </Link>
                     </Button>
                   </div>
                 ))

@@ -1,16 +1,11 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import {
-  CheckCircle2,
-  FileCheck,
-  Shield,
-  ShieldAlert,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
+import { Building2, FileCheck, ShieldCheck, Sparkles } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
+import { VerificationForm } from "@/components/dashboard/employer/verification-form";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -24,7 +19,7 @@ import { prisma } from "@/lib/db/prisma";
 export const metadata: Metadata = {
   title: "Verifikasi NIB NTB | KerjaNTB",
   description:
-    "Pengajuan dan status verifikasi Nomor Induk Berusaha (NIB) perusahaan.",
+    "Pengajuan dan status verifikasi Nomor Induk Berusaha (NIB) perusahaan di NTB.",
 };
 
 export default async function VerificationPage() {
@@ -40,137 +35,127 @@ export default async function VerificationPage() {
         include: { verification: true },
       })
     : await prisma.company.findFirst({
+        where: { userId: user.id },
         include: { verification: true },
       });
 
-  const verification = company?.verification;
-  const isApproved = company?.isVerified || verification?.status === "APPROVED";
-  const isPending = verification?.status === "PENDING";
-  const isRejected = verification?.status === "REJECTED";
+  if (!company) {
+    return (
+      <div className="mx-auto max-w-4xl space-y-6">
+        <div>
+          <h1 className="text-foreground text-2xl font-bold tracking-tight">
+            Verifikasi NIB NTB
+          </h1>
+          <p className="text-muted-foreground text-xs sm:text-sm">
+            Validasi izin operasional usaha di 10 Kabupaten/Kota se-Nusa
+            Tenggara Barat.
+          </p>
+        </div>
+
+        <Card className="border-border">
+          <CardHeader className="text-center">
+            <Building2 className="text-muted-foreground mx-auto mb-2 size-12" />
+            <CardTitle className="text-base font-bold sm:text-lg">
+              Profil Perusahaan Belum Dibuat
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Anda perlu mengisi data profil instansi / perusahaan terlebih
+              dahulu sebelum mengajukan verifikasi legalitas NIB.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center pb-6">
+            <Button asChild className="rounded-xl px-6 font-semibold">
+              <Link href="/dashboard/company">
+                <span>Lengkapi Profil Perusahaan Terlebih Dahulu</span>
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const verification = company.verification;
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       <div>
         <h1 className="text-foreground text-2xl font-bold tracking-tight">
           Verifikasi NIB NTB (Nomor Induk Berusaha)
         </h1>
         <p className="text-muted-foreground text-xs sm:text-sm">
           Tingkatkan kredibilitas lowongan kerja Anda dengan verifikasi izin
-          berusaha resmi dari pemerintah.
+          berusaha resmi dari pemerintah di wilayah Nusa Tenggara Barat.
         </p>
       </div>
 
-      {/* Kartu Status Verifikasi */}
-      <Card className="border-border bg-card">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-base font-bold">
-              <Shield className="text-primary size-5" />
-              <span>Status Verifikasi Perusahaan</span>
-            </CardTitle>
-            {isApproved && (
-              <Badge className="gap-1 border-emerald-500/20 bg-emerald-500/10 text-xs text-emerald-600">
-                <CheckCircle2 className="size-3.5" />
-                <span>Terverifikasi Resmi</span>
-              </Badge>
-            )}
-            {isPending && (
-              <Badge className="gap-1 border-0 bg-amber-500/15 text-xs text-amber-600">
-                <span>Sedang Ditinjau Admin</span>
-              </Badge>
-            )}
-            {isRejected && (
-              <Badge className="bg-destructive/15 text-destructive gap-1 border-0 text-xs">
-                <ShieldAlert className="size-3.5" />
-                <span>Pengajuan Ditolak</span>
-              </Badge>
-            )}
-            {!verification && !isApproved && (
-              <Badge variant="outline" className="text-xs">
-                <span>Belum Mengajukan NIB</span>
-              </Badge>
-            )}
+      {/* Keunggulan Verifikasi NIB Banner */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="border-border/60 bg-card rounded-2xl border p-4">
+          <div className="mb-2 flex size-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+            <ShieldCheck className="size-4" />
           </div>
-          <CardDescription>
-            {isApproved
-              ? "Perusahaan Anda telah tervalidasi dengan Nomor Induk Berusaha resmi. Lowongan yang dipasang langsung berstatus Tayang."
-              : isPending
-                ? "Dokumen NIB Anda sedang dalam antrean pemeriksaan oleh tim moderator Superadmin KerjaNTB."
-                : "Unggah dokumen NIB atau NPWP perusahaan Anda untuk mendapatkan lencana resmi di KerjaNTB."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {verification && (
-            <div className="bg-muted/40 border-border/80 space-y-2 rounded-xl border p-4 text-xs">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">
-                  Nama Legal Badan Usaha:
-                </span>
-                <span className="text-foreground font-semibold">
-                  {verification.legalName}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">
-                  Nomor Induk Berusaha (NIB):
-                </span>
-                <span className="text-foreground font-semibold">
-                  {verification.nib}
-                </span>
-              </div>
-              {verification.taxId && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    NPWP Perusahaan:
-                  </span>
-                  <span className="text-foreground font-semibold">
-                    {verification.taxId}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
+          <span className="text-foreground block text-xs font-bold sm:text-sm">
+            Lencana Resmi NTB
+          </span>
+          <span className="text-muted-foreground mt-0.5 block text-[11px] leading-relaxed">
+            Lencana Verified muncul di setiap lowongan untuk menjamin
+            kepercayaan pencari kerja lokal.
+          </span>
+        </div>
 
-          {/* Manfaat Verifikasi */}
-          <div className="border-border border-t pt-4">
-            <h3 className="text-foreground mb-3 flex items-center gap-1.5 text-sm font-bold">
-              <Sparkles className="size-4 text-amber-500" />
-              <span>Keunggulan Akun Terverifikasi di NTB</span>
-            </h3>
-            <div className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-3">
-              <div className="border-border/60 bg-card rounded-xl border p-3">
-                <ShieldCheck className="mb-1 size-5 text-emerald-600" />
-                <span className="text-foreground block font-bold">
-                  Lencana Resmi
-                </span>
-                <span className="text-muted-foreground text-[11px]">
-                  Badge Verified NIB muncul di setiap kartu lowongan Anda.
-                </span>
-              </div>
-              <div className="border-border/60 bg-card rounded-xl border p-3">
-                <FileCheck className="mb-1 size-5 text-blue-600" />
-                <span className="text-foreground block font-bold">
-                  Posting Instan
-                </span>
-                <span className="text-muted-foreground text-[11px]">
-                  Lowongan baru langsung terbit tanpa menunggu antrean moderasi
-                  manual.
-                </span>
-              </div>
-              <div className="border-border/60 bg-card rounded-xl border p-3">
-                <Sparkles className="mb-1 size-5 text-amber-500" />
-                <span className="text-foreground block font-bold">
-                  Prioritas Rekomendasi
-                </span>
-                <span className="text-muted-foreground text-[11px]">
-                  Tampil di urutan teratas hasil pencarian loker bagi pelamar
-                  NTB.
-                </span>
-              </div>
-            </div>
+        <div className="border-border/60 bg-card rounded-2xl border p-4">
+          <div className="mb-2 flex size-8 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
+            <FileCheck className="size-4" />
           </div>
-        </CardContent>
-      </Card>
+          <span className="text-foreground block text-xs font-bold sm:text-sm">
+            Publikasi Otomatis (Instan)
+          </span>
+          <span className="text-muted-foreground mt-0.5 block text-[11px] leading-relaxed">
+            Lowongan baru langsung tayang berstatus PUBLISHED tanpa antrean
+            moderasi manual.
+          </span>
+        </div>
+
+        <div className="border-border/60 bg-card rounded-2xl border p-4">
+          <div className="mb-2 flex size-8 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
+            <Sparkles className="size-4" />
+          </div>
+          <span className="text-foreground block text-xs font-bold sm:text-sm">
+            Prioritas Rekomendasi
+          </span>
+          <span className="text-muted-foreground mt-0.5 block text-[11px] leading-relaxed">
+            Diprioritaskan dalam hasil pencarian dan notifikasi loker mingguan
+            kepada pencari kerja.
+          </span>
+        </div>
+      </div>
+
+      {/* Form & Status Verifikasi */}
+      <VerificationForm
+        companyId={company.id}
+        companyName={company.name}
+        companyAddress={company.address}
+        companyPhone={company.phone}
+        companyEmail={company.email}
+        initialVerification={
+          verification
+            ? {
+                legalName: verification.legalName,
+                nib: verification.nib,
+                taxId: verification.taxId,
+                address: verification.address,
+                phone: verification.phone,
+                email: verification.email,
+                website: verification.website,
+                documentUrl: verification.documentUrl,
+                status: verification.status,
+                rejectionReason: verification.rejectionReason,
+                createdAt: verification.createdAt,
+              }
+            : null
+        }
+      />
     </div>
   );
 }

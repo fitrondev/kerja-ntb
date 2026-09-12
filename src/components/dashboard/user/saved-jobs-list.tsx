@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import Image from "next/image";
 import Link from "next/link";
 
 import { BookmarkX, Briefcase, MapPin, Send, Trash2 } from "lucide-react";
@@ -105,12 +106,13 @@ export function SavedJobsList({ initialSavedJobs }: SavedJobsListProps) {
             >
               <CardContent className="flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center">
                 <div className="flex items-start gap-4">
-                  <div className="bg-primary/10 text-primary border-primary/20 flex size-12 shrink-0 items-center justify-center rounded-xl border text-sm font-bold">
+                  <div className="bg-primary/10 text-primary border-primary/20 relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border text-sm font-bold">
                     {job.company?.logoUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={job.company.logoUrl}
                         alt={companyName}
+                        width={48}
+                        height={48}
                         className="size-full rounded-xl object-contain p-1"
                       />
                     ) : (

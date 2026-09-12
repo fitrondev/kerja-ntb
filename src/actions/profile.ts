@@ -14,6 +14,7 @@ const profileSchema = z.object({
   avatarUrl: z
     .string()
     .url("URL avatar tidak valid.")
+    .or(z.string().startsWith("/"))
     .optional()
     .or(z.literal("")),
   phone: z

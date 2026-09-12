@@ -1,5 +1,6 @@
 import * as React from "react";
 
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -160,12 +161,13 @@ export function JobDetailHeader({
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start gap-4 sm:gap-5">
             {/* Company Logo / Initials */}
-            <div className="bg-primary/10 text-primary border-primary/20 flex size-16 shrink-0 items-center justify-center rounded-2xl border text-xl font-bold shadow-xs sm:size-20">
+            <div className="bg-primary/10 text-primary border-primary/20 relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border text-xl font-bold shadow-xs sm:size-20">
               {job.company?.logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={job.company.logoUrl}
                   alt={companyName}
+                  width={80}
+                  height={80}
                   className="size-full rounded-2xl object-contain p-2"
                 />
               ) : (
@@ -401,7 +403,7 @@ export function JobDescription({
         </>
       )}
 
-      {skills && skills.length > 0 && (
+      {skills && skills.length > 0 ? (
         <>
           <Separator />
           <section className="space-y-4">
@@ -421,7 +423,7 @@ export function JobDescription({
             </div>
           </section>
         </>
-      )}
+      ) : null}
     </div>
   );
 }

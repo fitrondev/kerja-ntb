@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 
 import {
   JobApplyCard,
@@ -12,7 +13,9 @@ import {
 import { SectionContainer } from "@/components/layout/section-container";
 import { getCurrentUser } from "@/lib/auth/clerk-sync";
 import { prisma } from "@/lib/db/prisma";
+import { getJobBySlug } from "@/lib/db/queries";
 import { formatSalary } from "@/lib/formatters";
+import { generateJobPostingJsonLd } from "@/lib/seo/job-posting-schema";
 
 // ---------------------------------------------------------------------------
 // Metadata
@@ -24,25 +27,32 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const job = await prisma.job.findUnique({
-    where: { slug },
-    select: {
-      title: true,
-      description: true,
-      company: { select: { name: true } },
-      location: { select: { name: true } },
-    },
-  });
+  const job = await getJobBySlug(slug);
 
   if (!job) return { title: "Lowongan Tidak Ditemukan | KerjaNTB" };
 
   const companyName = job.company?.name ?? "Perusahaan NTB";
+  const title = `${job.title} di ${companyName} (${job.location.name}) | KerjaNTB`;
+  const description = `${job.description.slice(0, 155)}...`;
+
   return {
-    title: `${job.title} di ${companyName} - ${job.location.name} | KerjaNTB`,
-    description: job.description.slice(0, 160),
+    title,
+    description,
+    alternates: {
+      canonical: `/loker/${slug}`,
+    },
     openGraph: {
       title: `${job.title} — ${companyName}`,
-      description: job.description.slice(0, 160),
+      description,
+      url: `/loker/${slug}`,
+      siteName: "KerjaNTB",
+      locale: "id_ID",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${job.title} — ${companyName}`,
+      description,
     },
   };
 }
@@ -58,47 +68,43 @@ export default async function JobDetailPage({
 }) {
   const { slug } = await params;
 
-  const job = await prisma.job.findUnique({
-    where: { slug },
-    include: {
-      company: {
-        include: {
-          verification: {
-            select: { nib: true, legalName: true, status: true },
-          },
-        },
-      },
-      location: true,
-      category: true,
-      skills: { include: { skill: true } },
-    },
-  });
+  const job = await getJobBySlug(slug);
 
   if (!job) notFound();
 
-  // Increment view count (fire-and-forget)
-  prisma.job
-    .update({ where: { id: job.id }, data: { viewsCount: { increment: 1 } } })
-    .catch(() => {});
-
-  // Fetch similar jobs
-  const similarJobs = await prisma.job.findMany({
-    where: {
-      status: "PUBLISHED",
-      id: { not: job.id },
-      OR: [{ categoryId: job.categoryId }, { locationId: job.locationId }],
-    },
-    include: {
-      company: {
-        select: { name: true, slug: true, logoUrl: true, isVerified: true },
-      },
-      location: { select: { name: true, slug: true } },
-      category: { select: { name: true, slug: true } },
-      skills: { include: { skill: { select: { name: true, slug: true } } } },
-    },
-    take: 3,
-    orderBy: { createdAt: "desc" },
+  // Increment view count non-blockingly via after()
+  after(async () => {
+    try {
+      await prisma.job.update({
+        where: { id: job.id },
+        data: { viewsCount: { increment: 1 } },
+      });
+    } catch {
+      // Fail-safe view counter
+    }
   });
+
+  // Parallel fetch: current user and similar jobs concurrently
+  const [user, similarJobs] = await Promise.all([
+    getCurrentUser(),
+    prisma.job.findMany({
+      where: {
+        status: "PUBLISHED",
+        id: { not: job.id },
+        OR: [{ categoryId: job.categoryId }, { locationId: job.locationId }],
+      },
+      include: {
+        company: {
+          select: { name: true, slug: true, logoUrl: true, isVerified: true },
+        },
+        location: { select: { name: true, slug: true } },
+        category: { select: { name: true, slug: true } },
+        skills: { include: { skill: { select: { name: true, slug: true } } } },
+      },
+      take: 3,
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
 
   // Derived values
   const companyName = job.company?.name ?? "Perusahaan di NTB";
@@ -125,7 +131,6 @@ export default async function JobDetailPage({
     isDefault: boolean;
   }> = [];
 
-  const user = await getCurrentUser();
   if (user) {
     const [savedRecord, applicationRecord, dbResumes] = await Promise.all([
       prisma.savedJob.findUnique({
@@ -156,43 +161,9 @@ export default async function JobDetailPage({
     userResumes = dbResumes;
   }
 
-  // Google Jobs structured data
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: job.title,
-    description: job.description,
-    datePosted: job.createdAt.toISOString(),
-    validThrough: job.deadline?.toISOString(),
-    employmentType: job.type,
-    hiringOrganization: {
-      "@type": "Organization",
-      name: companyName,
-      sameAs: job.company?.website ?? undefined,
-    },
-    jobLocation: {
-      "@type": "Place",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: job.location.name,
-        addressRegion: "Nusa Tenggara Barat",
-        addressCountry: "ID",
-      },
-    },
-    baseSalary:
-      job.isSalaryDisclosed && job.salaryMin
-        ? {
-            "@type": "MonetaryAmount",
-            currency: "IDR",
-            value: {
-              "@type": "QuantitativeValue",
-              minValue: Number(job.salaryMin),
-              maxValue: job.salaryMax ? Number(job.salaryMax) : undefined,
-              unitText: "MONTH",
-            },
-          }
-        : undefined,
-  };
+  // Google for Jobs structured data resmi (Schema.org/JobPosting)
+  const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://kerjantb.com";
+  const jsonLd = generateJobPostingJsonLd(job, appBaseUrl);
 
   return (
     <div className="flex flex-col">

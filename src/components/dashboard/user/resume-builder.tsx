@@ -263,8 +263,9 @@ function ResumeEditorForm({
     }
 
     const res = await upload(file, "RESUME");
-    if (res && res.publicUrl) {
-      setFileUrl(res.publicUrl);
+    const uploadedUrl = res?.fileUrl || res?.publicUrl;
+    if (res && uploadedUrl) {
+      setFileUrl(uploadedUrl);
       toast.success("Berkas CV PDF berhasil diunggah ke SumoPod Storage!");
     } else {
       toast.error("Gagal mengunggah berkas CV.");

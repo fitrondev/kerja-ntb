@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:seed": "bun run prisma/seed.ts",
+    "postinstall": "node scripts/patch-next-themes.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1127.0",

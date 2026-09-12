@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { z } from "zod";
 
-import { ApplicationStatus } from "@/generated/prisma/enums";
+import { ApplicationStatus, UserRole } from "@/generated/prisma/enums";
 import { getCurrentUser } from "@/lib/auth/clerk-sync";
 import { prisma } from "@/lib/db/prisma";
 
@@ -16,6 +16,7 @@ const applicationSchema = z.object({
   customResumeUrl: z
     .string()
     .url("URL berkas CV tidak valid.")
+    .or(z.string().startsWith("/"))
     .optional()
     .or(z.literal("")),
   coverLetter: z
@@ -34,15 +35,7 @@ export async function submitJobApplicationAction(
   input: ApplicationInput
 ): Promise<ActionResponse<{ applicationId: string }>> {
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return {
-        success: false,
-        error:
-          "Silakan masuk ke akun Anda terlebih dahulu untuk melamar pekerjaan.",
-      };
-    }
-
+    // 1. Validasi sinkron skema input lamaran (0ms early-exit)
     const parsed = applicationSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -54,7 +47,7 @@ export async function submitJobApplicationAction(
 
     const { jobId, resumeId, customResumeUrl, coverLetter } = parsed.data;
 
-    // Pastikan salah satu CV terlampir (Resume ID atau URL upload)
+    // Pastikan salah satu CV terlampir (Resume ID atau URL upload) sebelum menyentuh DB
     if (!resumeId && !customResumeUrl) {
       return {
         success: false,
@@ -63,17 +56,36 @@ export async function submitJobApplicationAction(
       };
     }
 
-    // Pastikan lowongan valid & PUBLISHED
-    const job = await prisma.job.findUnique({
-      where: { id: jobId },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        status: true,
-        deadline: true,
-      },
-    });
+    const user = await getCurrentUser();
+    if (!user) {
+      return {
+        success: false,
+        error:
+          "Silakan masuk ke akun Anda terlebih dahulu untuk melamar pekerjaan.",
+      };
+    }
+
+    // 2. Paralelkan pengecekan validitas lowongan dan riwayat lamaran pengguna
+    const [job, existingApplication] = await Promise.all([
+      prisma.job.findUnique({
+        where: { id: jobId },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          status: true,
+          deadline: true,
+        },
+      }),
+      prisma.application.findUnique({
+        where: {
+          jobId_userId: {
+            jobId,
+            userId: user.id,
+          },
+        },
+      }),
+    ]);
 
     if (!job || job.status !== "PUBLISHED") {
       return {
@@ -90,16 +102,6 @@ export async function submitJobApplicationAction(
           "Batas waktu pengiriman lamaran untuk posisi ini telah berakhir.",
       };
     }
-
-    // Periksa apakah user sudah pernah melamar di lowongan ini
-    const existingApplication = await prisma.application.findUnique({
-      where: {
-        jobId_userId: {
-          jobId,
-          userId: user.id,
-        },
-      },
-    });
 
     if (existingApplication) {
       return {
@@ -185,5 +187,109 @@ export async function withdrawJobApplicationAction(
   } catch (error) {
     console.error("Error withdrawing application:", error);
     return { success: false, error: "Gagal membatalkan lamaran." };
+  }
+}
+
+const employerUpdateApplicationSchema = z.object({
+  applicationId: z.string().min(1, "ID lamaran wajib disertakan."),
+  status: z.nativeEnum(ApplicationStatus),
+  notes: z
+    .string()
+    .max(3000, "Catatan internal maksimal 3000 karakter.")
+    .optional()
+    .or(z.literal("")),
+  rejectionReason: z
+    .string()
+    .max(1000, "Alasan penolakan maksimal 1000 karakter.")
+    .optional()
+    .or(z.literal("")),
+  interviewDate: z.string().optional().or(z.literal("")),
+});
+
+export type EmployerUpdateApplicationInput = z.infer<
+  typeof employerUpdateApplicationSchema
+>;
+
+/**
+ * Memperbarui status seleksi kandidat pelamar oleh perusahaan (Employer ATS).
+ */
+export async function updateEmployerApplicationStatusAction(
+  input: EmployerUpdateApplicationInput
+): Promise<
+  ActionResponse<{ applicationId: string; status: ApplicationStatus }>
+> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { success: false, error: "Autentikasi diperlukan." };
+    }
+
+    const parsed = employerUpdateApplicationSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: "Data perubahan status pelamar tidak valid.",
+        fieldErrors: parsed.error.flatten().fieldErrors,
+      };
+    }
+
+    const { applicationId, status, notes, rejectionReason, interviewDate } =
+      parsed.data;
+
+    const application = await prisma.application.findUnique({
+      where: { id: applicationId },
+      include: {
+        job: {
+          include: { company: true },
+        },
+      },
+    });
+
+    if (!application) {
+      return { success: false, error: "Data berkas lamaran tidak ditemukan." };
+    }
+
+    const isOwner =
+      application.job.creatorId === user.id ||
+      application.job.company?.userId === user.id;
+    const isSuperadmin = user.role === UserRole.SUPERADMIN;
+
+    if (!isOwner && !isSuperadmin) {
+      return {
+        success: false,
+        error:
+          "Anda tidak berhak memperbarui status berkas pelamar untuk lowongan ini.",
+      };
+    }
+
+    const interviewDateTime = interviewDate ? new Date(interviewDate) : null;
+
+    const updated = await prisma.application.update({
+      where: { id: applicationId },
+      data: {
+        status,
+        notes: notes ? notes.trim() : null,
+        rejectionReason: rejectionReason ? rejectionReason.trim() : null,
+        interviewDate: interviewDateTime,
+      },
+    });
+
+    revalidatePath("/dashboard/employer/pelamar");
+    revalidatePath("/dashboard/employer");
+    revalidatePath("/dashboard/user/applications");
+
+    return {
+      success: true,
+      data: {
+        applicationId: updated.id,
+        status: updated.status,
+      },
+    };
+  } catch (error) {
+    console.error("Error updating employer application status:", error);
+    return {
+      success: false,
+      error: "Gagal memperbarui status pelamar. Silakan coba kembali.",
+    };
   }
 }

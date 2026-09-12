@@ -44,6 +44,7 @@ const saveResumeSchema = z.object({
   fileUrl: z
     .string()
     .url("URL berkas tidak valid.")
+    .or(z.string().startsWith("/"))
     .optional()
     .or(z.literal("")),
   isDefault: z.boolean().default(false),

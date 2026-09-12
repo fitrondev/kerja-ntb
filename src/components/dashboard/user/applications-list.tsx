@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -251,10 +252,11 @@ export function ApplicationsList({
                     {/* Logo Perusahaan */}
                     <div className="bg-primary/10 text-primary border-primary/20 flex size-12 shrink-0 items-center justify-center rounded-xl border text-sm font-bold">
                       {app.job.company?.logoUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
                           src={app.job.company.logoUrl}
                           alt={companyName}
+                          width={48}
+                          height={48}
                           className="size-full rounded-xl object-contain p-1"
                         />
                       ) : (

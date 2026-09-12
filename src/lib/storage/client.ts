@@ -10,6 +10,7 @@ export interface DirectUploadOptions {
 
 export interface DirectUploadResult {
   storageKey: string;
+  fileUrl: string;
   publicUrl: string | null;
   isPrivate: boolean;
 }
@@ -36,7 +37,8 @@ export async function uploadFileToStorage({
     throw new Error(response.error || "Gagal mendapatkan izin upload.");
   }
 
-  const { uploadUrl, storageKey, publicUrl, isPrivate } = response.data;
+  const { uploadUrl, storageKey, publicUrl, fileUrl, isPrivate } =
+    response.data;
 
   // 2. Upload binary langsung ke SumoPod S3 dengan XMLHttpRequest untuk memantau progress
   await new Promise<void>((resolve, reject) => {
@@ -82,9 +84,13 @@ export async function uploadFileToStorage({
     xhr.send(file);
   });
 
+  const computedFileUrl = fileUrl || `/api/storage/file/${storageKey}`;
+
   return {
     storageKey,
-    publicUrl,
+    fileUrl: computedFileUrl,
+    // publicUrl diisi computedFileUrl agar form client yang mengecek res.publicUrl tetap berhasil
+    publicUrl: publicUrl || computedFileUrl,
     isPrivate,
   };
 }

@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 
 import { SignOutButton } from "@clerk/nextjs";
 import {
+  Activity,
   AlertTriangle,
   ArrowUpRight,
   Bookmark,
@@ -124,6 +125,13 @@ const superadminGroups: NavGroup[] = [
         icon: AlertTriangle,
         badge: "Laporan",
         badgeVariant: "destructive",
+      },
+      {
+        title: "Log Audit Sistem",
+        url: "/dashboard/admin/audit-log",
+        icon: Activity,
+        badge: "Audit",
+        badgeVariant: "secondary",
       },
     ],
   },
