@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 
 import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { auth } from "@clerk/nextjs/server";
 
+import { getCurrentUser } from "@/lib/auth/clerk-sync";
+import { canAccessStorageFile } from "@/lib/storage/authorization";
 import { S3_BUCKET_NAME, s3Client } from "@/lib/storage/s3";
 
 export async function GET(
@@ -21,17 +22,29 @@ export async function GET(
       return new NextResponse("Path berkas tidak valid", { status: 400 });
     }
 
-    // Berkas privat (CV pelamar & dokumen NIB) mewajibkan autentikasi sesi pengguna
+    // Berkas privat (CV pelamar & dokumen NIB) mewajibkan autentikasi sesi dan otorisasi kepemilikan objek (SEC-02)
     const isPrivate =
       storageKey.startsWith("resumes/") ||
       storageKey.startsWith("verifications/");
 
     if (isPrivate) {
-      const { userId } = await auth();
-      if (!userId) {
+      const user = await getCurrentUser();
+      if (!user) {
         return new NextResponse(
           "Akses ditolak. Silakan masuk terlebih dahulu untuk melihat berkas ini.",
           { status: 401 }
+        );
+      }
+
+      const isAuthorized = await canAccessStorageFile(
+        { id: user.id, clerkId: user.clerkId, role: user.role },
+        storageKey
+      );
+
+      if (!isAuthorized) {
+        return new NextResponse(
+          "Akses ditolak. Anda tidak memiliki izin untuk mengakses dokumen privat ini.",
+          { status: 403 }
         );
       }
     }
@@ -73,7 +86,11 @@ export async function GET(
         "Cache-Control": isPrivate
           ? "private, no-cache, no-store, must-revalidate"
           : "public, max-age=31536000, immutable",
-        "Content-Disposition": `inline; filename="${encodeURIComponent(filename)}"`,
+        // SEC-06: Paksa unduhan (attachment) untuk berkas privat agar terhindar dari rendered stored XSS
+        "Content-Disposition": isPrivate
+          ? `attachment; filename="${encodeURIComponent(filename)}"`
+          : `inline; filename="${encodeURIComponent(filename)}"`,
+        "X-Content-Type-Options": "nosniff",
       },
     });
   } catch (error: unknown) {

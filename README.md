@@ -66,3 +66,18 @@ bun dev
 ```
 
 Buka [http://localhost:3000](http://localhost:3000) pada browser Anda.
+
+---
+
+## 📄 Lisensi & Hak Kekayaan Intelektual
+
+Seluruh kode sumber, arsitektur, aset, skema basis data, dan antarmuka pengguna (UI/UX) pada repositori **KerjaNTB** dilindungi oleh **Undang-Undang Republik Indonesia Nomor 28 Tahun 2014 tentang Hak Cipta** dan ketentuan lisensi tertutup (**Proprietary & All Rights Reserved**).
+
+### 🚫 Batasan & Larangan Mutlak
+
+- **Dilarang Menyalin (No Copying):** Dilarang menduplikasi, mengkloning, atau menyalin sebagian maupun seluruh kode sumber ini ke dalam media apapun.
+- **Dilarang Memperjualbelikan (No Commercial Sale):** Dilarang menjual, menyewakan, melisensikan ulang (_sublicense_), atau memonetisasi kode sumber, binary, maupun template sistem ini.
+- **Dilarang Rekayasa Balik (No Reverse Engineering):** Dilarang melakukan dekompilasi, ekstraksi logika, atau membuat produk tiruan (_clone platform_) yang bersaing dengan KerjaNTB.
+- **Dilarang Distribusi Publik:** Dilarang mengunggah ulang ke repositori publik, forum terbuka, atau membagikannya kepada pihak ketiga tanpa izin resmi tertulis.
+
+Rincian lengkap ketentuan hukum dan sanksi pelanggaran dapat dibaca pada berkas [LICENSE](LICENSE).

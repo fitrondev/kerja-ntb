@@ -1,8 +1,14 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 
+import { getCurrentUser } from "@/lib/auth/clerk-sync";
+import { prisma } from "@/lib/db/prisma";
+import { checkRateLimit } from "@/lib/security/rate-limit";
+import {
+  canAccessStorageFile,
+  canModifyStorageFile,
+} from "@/lib/storage/authorization";
 import {
   PresignedUploadResult,
   UploadCategory,
@@ -37,12 +43,25 @@ export async function getPresignedUploadUrlAction(
   input: UploadRequestInput
 ): Promise<ActionResponse<PresignedUploadResult>> {
   try {
-    const { userId } = await auth();
+    const user = await getCurrentUser();
 
-    if (!userId) {
+    if (!user) {
       return {
         success: false,
         error: "Autentikasi diperlukan. Silakan masuk terlebih dahulu.",
+      };
+    }
+
+    // SEC-04: Rate limiting proteksi presign URL flooding
+    const rateCheck = checkRateLimit(`action_presign:${user.id}`, {
+      intervalMs: 60_000,
+      maxRequests: 20,
+    });
+    if (!rateCheck.success) {
+      return {
+        success: false,
+        error:
+          "Terlalu banyak permintaan unggah berkas. Silakan coba lagi dalam 1 menit.",
       };
     }
 
@@ -70,7 +89,8 @@ export async function getPresignedUploadUrlAction(
     const fileValidation = validateFileConstraints(
       category,
       fileSize,
-      fileType
+      fileType,
+      fileName
     );
     if (!fileValidation.valid) {
       return {
@@ -79,11 +99,40 @@ export async function getPresignedUploadUrlAction(
       };
     }
 
-    // Tentukan ownerId berdasarkan kategori
-    let ownerId = userId;
+    // SEC-03: Tentukan ownerId & validasi otorisasi kepemilikan perusahaan
+    let ownerId = user.id;
     if (category === "LOGO" || category === "VERIFICATION") {
-      ownerId = companyId || userId;
+      const targetCompanyId = companyId || user.company?.id;
+      if (!targetCompanyId) {
+        return {
+          success: false,
+          error: "ID Perusahaan wajib disertakan untuk kategori ini.",
+        };
+      }
+
+      if (user.role !== "SUPERADMIN") {
+        const ownedCompany = await prisma.company.findFirst({
+          where: { id: targetCompanyId, userId: user.id },
+          select: { id: true },
+        });
+
+        if (!ownedCompany) {
+          return {
+            success: false,
+            error:
+              "Akses ditolak. Anda tidak memiliki izin untuk perusahaan ini.",
+          };
+        }
+      }
+
+      ownerId = targetCompanyId;
     } else if (category === "BLOG") {
+      if (user.role !== "SUPERADMIN") {
+        return {
+          success: false,
+          error: "Hanya Superadmin yang berhak mengunggah aset blog.",
+        };
+      }
       ownerId = "public";
     }
 
@@ -117,9 +166,9 @@ export async function getPresignedDownloadUrlAction(
   expiresInSeconds = 900
 ): Promise<ActionResponse<{ downloadUrl: string }>> {
   try {
-    const { userId } = await auth();
+    const user = await getCurrentUser();
 
-    if (!userId) {
+    if (!user) {
       return {
         success: false,
         error: "Autentikasi diperlukan untuk mengakses dokumen privat.",
@@ -133,10 +182,23 @@ export async function getPresignedDownloadUrlAction(
       };
     }
 
-    // Hanya izinkan akses jika berkas berada di bucket yang sah
     const cleanKey = storageKey.startsWith("/")
       ? storageKey.slice(1)
       : storageKey;
+
+    // SEC-02: Otorisasi kepemilikan objek
+    const isAuthorized = await canAccessStorageFile(
+      { id: user.id, clerkId: user.clerkId, role: user.role },
+      cleanKey
+    );
+
+    if (!isAuthorized) {
+      return {
+        success: false,
+        error:
+          "Akses ditolak. Anda tidak memiliki izin untuk mengunduh dokumen privat ini.",
+      };
+    }
 
     const downloadUrl = await getPresignedDownloadUrl(
       cleanKey,
@@ -164,9 +226,9 @@ export async function deleteStorageFileAction(
   storageKey: string
 ): Promise<ActionResponse<{ deleted: boolean }>> {
   try {
-    const { userId } = await auth();
+    const user = await getCurrentUser();
 
-    if (!userId) {
+    if (!user) {
       return {
         success: false,
         error: "Autentikasi diperlukan untuk menghapus berkas.",
@@ -180,7 +242,25 @@ export async function deleteStorageFileAction(
       };
     }
 
-    await deleteObjectFromStorage(storageKey);
+    const cleanKey = storageKey.startsWith("/")
+      ? storageKey.slice(1)
+      : storageKey;
+
+    // SEC-03: Otorisasi hak modifikasi / hapus berkas
+    const isAuthorized = await canModifyStorageFile(
+      { id: user.id, clerkId: user.clerkId, role: user.role },
+      cleanKey
+    );
+
+    if (!isAuthorized) {
+      return {
+        success: false,
+        error:
+          "Akses ditolak. Anda tidak memiliki izin untuk menghapus berkas ini.",
+      };
+    }
+
+    await deleteObjectFromStorage(cleanKey);
 
     return {
       success: true,

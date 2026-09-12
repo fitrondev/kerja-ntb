@@ -8,7 +8,7 @@ import { prisma } from "@/lib/db/prisma";
  * dari generateMetadata() dan Page Component tidak memicu query ganda.
  */
 export const getJobBySlug = cache(async (slug: string) => {
-  return await prisma.job.findUnique({
+  const job = await prisma.job.findUnique({
     where: { slug },
     include: {
       company: {
@@ -27,6 +27,16 @@ export const getJobBySlug = cache(async (slug: string) => {
       },
     },
   });
+
+  // SEC-08: Masking nomor NIB agar tidak dapat disalin / discrape secara massal oleh kompetitor / bot
+  if (job?.company?.verification?.nib) {
+    const rawNib = job.company.verification.nib;
+    if (rawNib.length > 7) {
+      job.company.verification.nib = `${rawNib.slice(0, 4)}******${rawNib.slice(-3)}`;
+    }
+  }
+
+  return job;
 });
 
 /**

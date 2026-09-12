@@ -18,6 +18,7 @@ import {
 } from "@/generated/prisma/enums";
 import { getCurrentUser } from "@/lib/auth/clerk-sync";
 import { prisma } from "@/lib/db/prisma";
+import { checkRateLimit } from "@/lib/security/rate-limit";
 
 import type { ActionResponse } from "./types";
 
@@ -713,6 +714,19 @@ export async function submitJobReportAction(
         success: false,
         error:
           "Anda harus masuk (login) terlebih dahulu untuk melaporkan lowongan kerja demi mencegah penyalahgunaan.",
+      };
+    }
+
+    // SEC-04: Rate limiting proteksi spam laporan palsu (max 5 laporan per 15 menit per akun)
+    const rateCheck = checkRateLimit(`job_report:${user.id}`, {
+      intervalMs: 15 * 60 * 1000,
+      maxRequests: 5,
+    });
+    if (!rateCheck.success) {
+      return {
+        success: false,
+        error:
+          "Batas laporan tercapai (maksimal 5 laporan per 15 menit). Mohon tunggu beberapa saat sebelum melaporkan lagi.",
       };
     }
 

@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 
-import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 
+import { getCurrentUser } from "@/lib/auth/clerk-sync";
+import { prisma } from "@/lib/db/prisma";
+import { checkRateLimit } from "@/lib/security/rate-limit";
 import {
   UploadCategory,
   getPresignedUploadUrl,
@@ -25,15 +27,31 @@ const presignSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
+    const user = await getCurrentUser();
 
-    if (!userId) {
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
           error: "Unauthorized. Silakan masuk terlebih dahulu.",
         },
         { status: 401 }
+      );
+    }
+
+    // SEC-04: Rate limiting proteksi presign flooding (max 20 req/min)
+    const rateCheck = checkRateLimit(`presign_api:${user.id}`, {
+      intervalMs: 60_000,
+      maxRequests: 20,
+    });
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Terlalu banyak permintaan presign upload. Silakan tunggu 1 menit.",
+        },
+        { status: 429 }
       );
     }
 
@@ -53,7 +71,12 @@ export async function POST(req: Request) {
 
     const { fileName, fileType, fileSize, category, companyId } = parsed.data;
 
-    const validation = validateFileConstraints(category, fileSize, fileType);
+    const validation = validateFileConstraints(
+      category,
+      fileSize,
+      fileType,
+      fileName
+    );
     if (!validation.valid) {
       return NextResponse.json(
         { success: false, error: validation.error },
@@ -61,10 +84,49 @@ export async function POST(req: Request) {
       );
     }
 
-    let ownerId = userId;
+    // SEC-03: Validasi relasi kepemilikan perusahaan untuk mencegah IDOR
+    let ownerId = user.id;
     if (category === "LOGO" || category === "VERIFICATION") {
-      ownerId = companyId || userId;
+      const targetCompanyId = companyId || user.company?.id;
+      if (!targetCompanyId) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "ID Perusahaan wajib disertakan untuk kategori ini.",
+          },
+          { status: 400 }
+        );
+      }
+
+      if (user.role !== "SUPERADMIN") {
+        const ownedCompany = await prisma.company.findFirst({
+          where: { id: targetCompanyId, userId: user.id },
+          select: { id: true },
+        });
+
+        if (!ownedCompany) {
+          return NextResponse.json(
+            {
+              success: false,
+              error:
+                "Akses ditolak. Anda tidak memiliki hak akses atas perusahaan ini.",
+            },
+            { status: 403 }
+          );
+        }
+      }
+
+      ownerId = targetCompanyId;
     } else if (category === "BLOG") {
+      if (user.role !== "SUPERADMIN") {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Hanya Superadmin yang berhak mengunggah aset blog.",
+          },
+          { status: 403 }
+        );
+      }
       ownerId = "public";
     }
 

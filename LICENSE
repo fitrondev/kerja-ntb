@@ -1,0 +1,111 @@
+HAK CIPTA (C) 2024 - 2026 KERJANTB (FITRONDEV).
+SELURUH HAK CIPTA DILINDUNGI UNDANG-UNDANG.
+ALL RIGHTS RESERVED. PROPRIETARY AND CONFIDENTIAL.
+
+================================================================================
+PERJANJIAN LISENSI PROPRIETARY & HAK KEKAYAAN INTELEKTUAL TERTUTUP
+(PROPRIETARY & COMMERCIAL RESTRICTED SOFTWARE LICENSE)
+================================================================================
+
+PEMBERITAHUAN HUKUM PENTING:
+Perangkat lunak, kode sumber (source code), skema basis data, antarmuka pengguna
+(UI/UX), arsitektur sistem, dokumentasi teknis, nama dagang, logo, serta seluruh
+aset digital yang terkandung di dalam repositori "KerjaNTB" ini merupakan karya cipta
+eksklusif dan rahasia dagang milik Pemegang Hak Cipta (KerjaNTB / fitrondev).
+
+Dengan mengakses, melihat, membaca, atau menyimpan salinan dari repositori ini,
+Anda secara hukum terikat dan tunduk pada syarat dan ketentuan lisensi berikut:
+
+--------------------------------------------------------------------------------
+PASAL 1 — HAK KEKAYAAN INTELEKTUAL & KEPEMILIKAN
+--------------------------------------------------------------------------------
+1.1 Seluruh hak kepemilikan, hak cipta, merek dagang, rahasia dagang, paten,
+    dan hak kekayaan intelektual lainnya atas perangkat lunak ini tetap sepenuhnya
+    berada di tangan Pemegang Hak Cipta.
+1.2 Tidak ada hak kepemilikan atau lisensi implisit yang dialihkan kepada pihak
+    manapun melalui akses terhadap kode sumber ini.
+
+--------------------------------------------------------------------------------
+PASAL 2 — LARANGAN PENYALINAN, PENGGANDAAN, DAN DISTRIBUSI (ANTI-COPY)
+--------------------------------------------------------------------------------
+2.1 DILARANG KERAS menyalin, menduplikasi, mengkloning, mencadangkan ke publik,
+    mengunduh untuk disebarluaskan, atau mereproduksi seluruh atau sebagian kode
+    sumber, komponen UI, modul sistem, maupun berkas konfigurasi perangkat lunak
+    ini dalam bentuk media apapun, baik digital maupun cetak.
+2.2 DILARANG KERAS mempublikasikan, mengunggah ulang (re-upload), atau mendistribusikan
+    kode sumber ini ke repositori publik (seperti GitHub, GitLab, Bitbucket, dsb.),
+    forum internet, platform berbagi kode, media sosial, atau kanal publik lainnya.
+
+--------------------------------------------------------------------------------
+PASAL 3 — LARANGAN KOMERSIALISASI, JUAL-BELI, DAN LISENSI ULANG (ANTI-COMMERCIAL)
+--------------------------------------------------------------------------------
+3.1 DILARANG KERAS menjual, memperjualbelikan, menyewakan, menyewabelikan,
+    menggadaikan, memindahtangankan, meminjamkan, atau melisensikan ulang (sublicense)
+    perangkat lunak ini, baik dalam bentuk kode sumber asli, kode yang telah
+    dikompilasi (binary/build), template, maupun sebagai SaaS (Software as a Service)
+    secara mandiri kepada pihak ketiga.
+3.2 DILARANG KERAS mengambil keuntungan finansial, komersial, maupun materiil
+    secara langsung maupun tidak langsung dari pemanfaatan kode sumber, aset,
+    atau rancangan sistem KerjaNTB tanpa perjanjian tertulis resmi dan bermaterai
+    dari Pemegang Hak Cipta.
+
+--------------------------------------------------------------------------------
+PASAL 4 — LARANGAN REKAYASA BALIK & KARYA TURUNAN (ANTI-DERIVATIVE)
+--------------------------------------------------------------------------------
+4.1 DILARANG KERAS melakukan rekayasa balik (reverse engineering), dekompilasi,
+    disassembly, pembongkaran, atau upaya ekstraksi struktur kode yang ditujukan
+    untuk meniru, menjiplak logika bisnis (business logic), atau membuat produk tiruan
+    (clone/look-alike product) yang serupa atau bersaing dengan platform KerjaNTB.
+4.2 DILARANG KERAS membuat karya turunan (derivative works), modifikasi, adaptasi,
+    atau pembaruan berbasis kode sumber ini tanpa izin tertulis dari Pemegang Hak Cipta.
+
+--------------------------------------------------------------------------------
+PASAL 5 — KERAHASIAAN INFORMASI & RAHASIA DAGANG
+--------------------------------------------------------------------------------
+5.1 Seluruh isi kode sumber, konfigurasi internal, logika validasi, integrasi
+    API, dan struktur basis data diklasifikasikan sebagai INFORMASI RAHASIA
+    (STRICTLY CONFIDENTIAL).
+5.2 Siapapun yang memiliki akses terhadap repositori ini wajib menjaga kerahasiaan
+    informasi tersebut dan dilarang membocorkannya kepada pihak ketiga yang tidak
+    berwenang.
+
+--------------------------------------------------------------------------------
+PASAL 6 — SANKSI HUKUM DAN TUNTUTAN PIDANA/PERDATA
+--------------------------------------------------------------------------------
+6.1 Pelanggaran terhadap ketentuan lisensi ini merupakan tindak pidana pelanggaran
+    Hak Cipta dan kejahatan siber yang tunduk pada:
+    a. Undang-Undang Republik Indonesia Nomor 28 Tahun 2014 tentang Hak Cipta
+       (Pasal 113 dengan ancaman pidana penjara paling lama 10 tahun dan/atau
+       denda paling banyak Rp 4.000.000.000,-);
+    b. Undang-Undang Republik Indonesia Nomor 11 Tahun 2008 jo. UU No. 1 Tahun 2024
+       tentang Informasi dan Transaksi Elektronik (UU ITE);
+    c. Undang-Undang Republik Indonesia Nomor 30 Tahun 2000 tentang Rahasia Dagang.
+6.2 Pemegang Hak Cipta berhak dan akan mengambil langkah hukum secara tegas
+    meliputi gugatan ganti rugi materiil dan immateriil, penyitaan aset hasil
+    pelanggaran, pelaporan pidana ke pihak Kepolisian Negara Republik Indonesia,
+    serta permohonan pemblokiran dan DMCA Takedown internasional.
+
+================================================================================
+ENGLISH VERSION (LEGAL SUMMARY FOR INTERNATIONAL COMPLIANCE)
+================================================================================
+
+1. STRICTLY PROPRIETARY: This software and associated source code are the
+   exclusive intellectual property of the Copyright Holder.
+2. NO COPYING / NO REPRODUCTION: You may not copy, clone, mirror, reproduce,
+   or duplicate this code in any form or by any means.
+3. NO COMMERCIAL USE / NO SALE: You may not sell, resell, lease, sublicense,
+   distribute, or monetize this software, its source code, design, or architecture.
+4. NO DERIVATIVE WORKS: You may not reverse engineer, decompile, modify,
+   or create derivative works or clone platforms based on this software.
+5. CONFIDENTIALITY: The source code constitutes valuable trade secrets and
+   confidential proprietary information.
+6. LEGAL ENFORCEMENT: Any unauthorized use, reproduction, distribution, or
+   commercialization will be prosecuted to the maximum extent permitted by law,
+   both under civil litigation for damages and criminal prosecution.
+
+--------------------------------------------------------------------------------
+Kontak Resmi & Pertanyaan Lisensi:
+KerjaNTB — Platform Job Portal Wilayah Nusa Tenggara Barat
+Situs Resmi : https://kerjantb.com
+Hak Cipta Dilindungi Penuh (All Rights Reserved)
+================================================================================

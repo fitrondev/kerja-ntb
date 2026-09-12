@@ -7,6 +7,7 @@ import { z } from "zod";
 import { ApplicationStatus, UserRole } from "@/generated/prisma/enums";
 import { getCurrentUser } from "@/lib/auth/clerk-sync";
 import { prisma } from "@/lib/db/prisma";
+import { checkRateLimit } from "@/lib/security/rate-limit";
 
 import type { ActionResponse } from "./types";
 
@@ -62,6 +63,19 @@ export async function submitJobApplicationAction(
         success: false,
         error:
           "Silakan masuk ke akun Anda terlebih dahulu untuk melamar pekerjaan.",
+      };
+    }
+
+    // SEC-04: Rate limiting proteksi spam lamaran (max 10 lamaran per jam per akun)
+    const rateCheck = checkRateLimit(`job_apply:${user.id}`, {
+      intervalMs: 60 * 60 * 1000,
+      maxRequests: 10,
+    });
+    if (!rateCheck.success) {
+      return {
+        success: false,
+        error:
+          "Batas lamaran tercapai (maksimal 10 lamaran per jam). Mohon tunggu beberapa saat sebelum melamar lagi.",
       };
     }
 

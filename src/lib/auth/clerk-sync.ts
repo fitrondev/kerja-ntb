@@ -197,13 +197,11 @@ export async function syncClerkUserToDatabase(data: UserJSON) {
 
   const avatarUrl = data.image_url ?? null;
 
-  const role =
-    extractRoleFromMetadata(
-      data.public_metadata as Record<string, unknown> | undefined
-    ) ??
-    extractRoleFromMetadata(
-      data.unsafe_metadata as Record<string, unknown> | undefined
-    );
+  // KEAMANAN (SEC-01): Role HANYA boleh diekstrak dari public_metadata yang terproteksi
+  // DILARANG membaca dari unsafe_metadata karena dapat dimanipulasi oleh klien browser pengguna
+  const role = extractRoleFromMetadata(
+    data.public_metadata as Record<string, unknown> | undefined
+  );
 
   return await upsertUserSafely({
     clerkId,
@@ -241,13 +239,10 @@ export async function syncClerkBackendUserToDatabase(user: ClerkBackendUser) {
 
   const avatarUrl = user.imageUrl ?? null;
 
-  const role =
-    extractRoleFromMetadata(
-      user.publicMetadata as Record<string, unknown> | undefined
-    ) ??
-    extractRoleFromMetadata(
-      user.unsafeMetadata as Record<string, unknown> | undefined
-    );
+  // KEAMANAN (SEC-01): Role HANYA boleh diekstrak dari publicMetadata backend
+  const role = extractRoleFromMetadata(
+    user.publicMetadata as Record<string, unknown> | undefined
+  );
 
   return await upsertUserSafely({
     clerkId,

@@ -16,6 +16,7 @@ import {
   WorkplaceType,
 } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
+import { checkRateLimit, getClientIp } from "@/lib/security/rate-limit";
 
 export const metadata: Metadata = {
   title: "Cari Lowongan Kerja di Nusa Tenggara Barat | KerjaNTB",
@@ -30,6 +31,32 @@ export default async function JobsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const clientIp = await getClientIp();
+  // SEC-04: Rate limiting pencarian publik anti-DoS (maksimal 60 request/menit per IP)
+  const rateCheck = checkRateLimit(`search_page:${clientIp}`, {
+    intervalMs: 60_000,
+    maxRequests: 60,
+  });
+
+  if (!rateCheck.success) {
+    return (
+      <main className="bg-background min-h-screen">
+        <SectionContainer className="py-24 text-center">
+          <div className="mx-auto max-w-md space-y-4">
+            <h1 className="text-foreground text-2xl font-bold tracking-tight">
+              Batas Pencarian Tercapai
+            </h1>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Sistem mendeteksi volume pencarian yang tinggi dari jaringan Anda.
+              Mohon tunggu 1 menit demi menjaga kestabilan dan kenyamanan akses
+              seluruh pencari kerja di NTB.
+            </p>
+          </div>
+        </SectionContainer>
+      </main>
+    );
+  }
+
   const params = await searchParams;
 
   // ---------------------------------------------------------------------------
